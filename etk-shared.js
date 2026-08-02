@@ -1,14 +1,37 @@
 /**
- * Общий слой данных для демо-сайта конкурса «Переходим на электронную трудовую книжку».
- * Источник истины — localStorage (ключ ETK_STORAGE_KEY). В проде это заменяется на backend API
- * (см. раздел 8 ТЗ): GET /api/public/statistics, POST /api/admin/data/list и т.д.
- * Публичная страница и админка читают/пишут один и тот же объект, поэтому изменения в админке
- * сразу видны на лендинге (в одном браузере).
+ * Общий слой данных для сайта конкурса «Переходим на электронную трудовую книжку».
+ * Источник истины — общий backend API (см. server/index.js), а не localStorage браузера:
+ * это нужно, чтобы правки в админке одного человека сразу видели все посетители сайта и
+ * второй администратор, а не только тот же браузер.
+ * load()/save()/reset() асинхронны и возвращают Promise.
  */
 (function (global) {
   'use strict';
 
-  var STORAGE_KEY = 'etk_campaign_v1';
+  // Адрес задеплоенного backend-сервиса (см. server/). Замените на реальный адрес
+  // после деплоя на Render, если он отличается от этого.
+  var API_BASE = 'https://etk-api.onrender.com';
+
+  function apiLoad() {
+    return fetch(API_BASE + '/api/data').then(function (res) {
+      if (!res.ok) throw new Error('Не удалось загрузить данные (HTTP ' + res.status + ')');
+      return res.json();
+    });
+  }
+
+  function apiSave(data, adminKey) {
+    return fetch(API_BASE + '/api/data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Key': adminKey || ''
+      },
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Не удалось сохранить данные (HTTP ' + res.status + ')');
+      return res.json();
+    });
+  }
 
   function nowIso() {
     return new Date().toISOString();
@@ -117,29 +140,30 @@
     return data;
   }
 
+  // Возвращает Promise<data>. Если API ещё пуст (первый запуск), сервер отдаёт ошибку —
+  // тогда инициализируем данными по умолчанию и сохраняем их как первую версию.
   function load() {
-    try {
-      var raw = global.localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        var initial = defaultData();
-        save(initial);
-        return initial;
-      }
-      return migrate(JSON.parse(raw));
-    } catch (e) {
-      console.error('ETK: не удалось прочитать данные, используются значения по умолчанию', e);
-      return defaultData();
-    }
+    return apiLoad()
+      .then(function (raw) {
+        return migrate(raw);
+      })
+      .catch(function (e) {
+        console.error('ETK: не удалось загрузить данные из API', e);
+        throw e;
+      });
   }
 
-  function save(data) {
-    global.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  // Возвращает Promise. adminKey обязателен — сервер отклонит запись без верного пароля.
+  function save(data, adminKey) {
+    return apiSave(data, adminKey);
   }
 
-  function reset() {
+  // Возвращает Promise<data> — сбрасывает данные к значениям по умолчанию и сохраняет их.
+  function reset(adminKey) {
     var initial = defaultData();
-    save(initial);
-    return initial;
+    return save(initial, adminKey).then(function () {
+      return initial;
+    });
   }
 
   function addAudit(data, actor, action, entity, before, after) {
@@ -260,7 +284,6 @@
   }
 
   global.ETK = {
-    STORAGE_KEY: STORAGE_KEY,
     load: load,
     save: save,
     reset: reset,

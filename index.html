@@ -809,8 +809,7 @@
 <script src="etk-shared.js"></script>
 <script>
 (function(){
-  var data = ETK.load();
-  var metrics = ETK.computeMetrics(data);
+  var data, metrics;
   var lastKnownLevelIndex = null;
   var firstRender = true;
   var lastTotalValue = null;
@@ -868,8 +867,21 @@
     }
   }
 
-  function render(){
-    data = ETK.load();
+  function showLoadError(){
+    var titleEl = document.getElementById('hero-title');
+    if (titleEl.classList.contains('skeleton') || titleEl.textContent === 'Загрузка…') {
+      titleEl.textContent = 'Не удалось загрузить данные конкурса. Страница обновится автоматически через некоторое время.';
+      titleEl.classList.remove('skeleton');
+    }
+  }
+
+  async function render(){
+    try {
+      data = await ETK.load();
+    } catch (e) {
+      showLoadError();
+      return;
+    }
     metrics = ETK.computeMetrics(data);
     var c = data.campaign, cur = data.current, content = data.content;
 
@@ -1049,13 +1061,8 @@
 
   render();
 
-  // Публичная статистика кэшируется 30–60 сек (п.10.1 ТЗ) — здесь эмулируем периодический опрос
+  // Периодический опрос API — так изменения из админки (в том числе с другого устройства) доходят до посетителей
   setInterval(render, 30000);
-
-  // Синхронизация между вкладками (демо межвкладочной "реалтайм" доставки)
-  window.addEventListener('storage', function(e){
-    if (e.key === ETK.STORAGE_KEY) render();
-  });
 })();
 </script>
 </body>

@@ -245,7 +245,7 @@
 </head>
 <body>
 
-<div class="demo-banner">Демо-режим: авторизация и хранение данных — только в этом браузере (localStorage), без реального backend. Роль выбирается вручную для демонстрации прав доступа.</div>
+<div class="demo-banner">Демо-режим: данные хранятся в общем backend и видны всем посетителям сайта. Запись защищена общим паролем администратора, но роль ниже выбирается вручную (не настоящий логин) — это только для демонстрации разных прав доступа в интерфейсе.</div>
 
 <div class="topbar">
   <h1>Админ-панель · Конкурс «Переходим на ЭТК»</h1>
@@ -503,10 +503,24 @@
 <script src="etk-shared.js"></script>
 <script>
 (function(){
-  var data = ETK.load();
+  var data;
   var role = 'content_admin';
   var pendingListIds = null;
   var pendingFileName = null;
+
+  // Пароль администратора для записи в общий backend (см. server/). Спрашивается один раз за
+  // сессию вкладки и кэшируется в sessionStorage — сам API не хранит и не знает про роли, только про этот пароль.
+  var adminKey = sessionStorage.getItem('etk_admin_key') || '';
+  function ensureAdminKey(){
+    if (!adminKey) {
+      var entered = window.prompt('Введите пароль администратора (нужен для сохранения изменений):');
+      if (entered) {
+        adminKey = entered;
+        sessionStorage.setItem('etk_admin_key', adminKey);
+      }
+    }
+    return adminKey;
+  }
 
   function currentActor(){
     return role === 'super_admin' ? 'Суперадминистратор (демо)' : (role === 'viewer' ? 'Viewer (демо)' : 'HR-администратор (демо)');
@@ -527,7 +541,16 @@
     toast._timer = setTimeout(function(){ t.classList.remove('visible'); }, 2600);
   }
 
-  function persist(){ ETK.save(data); }
+  // Возвращает Promise. При ошибке (неверный пароль, сеть недоступна) сбрасывает закэшированный
+  // пароль, чтобы при следующей попытке он запросился заново, и показывает тост с причиной.
+  function persist(){
+    return ETK.save(data, ensureAdminKey()).catch(function(e){
+      toast('Не удалось сохранить: проверьте пароль администратора и соединение');
+      adminKey = '';
+      sessionStorage.removeItem('etk_admin_key');
+      throw e;
+    });
+  }
 
   function showModal(title, text, onConfirm){
     var overlay = document.getElementById('modal-overlay');
@@ -604,7 +627,7 @@
     reader.readAsText(file, 'UTF-8');
   });
 
-  document.getElementById('list-confirm-btn').addEventListener('click', function(){
+  document.getElementById('list-confirm-btn').addEventListener('click', async function(){
     if (!can('updateData') || !pendingListIds) return;
     var before = data.current.total;
     if (!data.lists.baselineList) {
@@ -621,12 +644,12 @@
       total: data.current.total, previousTotal: before, note: pendingFileName
     });
     ETK.addAudit(data, currentActor(), 'data_update_list', 'DataSnapshot', before, data.current.total);
-    persist();
+    try { await persist(); } catch (e) { return; }
     toast('Список сохранён: ' + ETK.formatNumber(data.current.total) + ' уникальных сотрудников');
     pendingListIds = null;
     document.getElementById('list-preview').style.display = 'none';
     document.getElementById('file-input').value = '';
-    renderAll();
+    await renderAll();
   });
 
   document.getElementById('number-input').addEventListener('input', function(){
@@ -647,7 +670,7 @@
       return;
     }
     var comment = document.getElementById('number-comment').value.trim();
-    showModal('Сохранить новое значение?', 'Публичный счётчик станет равен ' + ETK.formatNumber(val) + '. Действие фиксируется в истории и не может быть удалено.', function(){
+    showModal('Сохранить новое значение?', 'Публичный счётчик станет равен ' + ETK.formatNumber(val) + '. Действие фиксируется в истории и не может быть удалено.', async function(){
       var before = data.current.total;
       data.current.previousTotal = data.current.total;
       data.current.total = val;
@@ -659,10 +682,10 @@
         total: val, previousTotal: before, note: comment || '—'
       });
       ETK.addAudit(data, currentActor(), 'data_update_number', 'DataSnapshot', before, val);
-      persist();
+      try { await persist(); } catch (e) { return; }
       toast('Значение сохранено: ' + ETK.formatNumber(val));
       document.getElementById('number-comment').value = '';
-      renderAll();
+      await renderAll();
     });
   });
 
@@ -686,7 +709,7 @@
       btn.addEventListener('click', function(){
         var record = data.history.find(function(h){ return h.id === btn.dataset.id; });
         if (!record) return;
-        showModal('Восстановить версию?', 'Публичный счётчик вернётся к значению ' + ETK.formatNumber(record.total) + ' от ' + ETK.formatDateTime(record.date) + '.', function(){
+        showModal('Восстановить версию?', 'Публичный счётчик вернётся к значению ' + ETK.formatNumber(record.total) + ' от ' + ETK.formatDateTime(record.date) + '.', async function(){
           var before = data.current.total;
           data.current.previousTotal = data.current.total;
           data.current.total = record.total;
@@ -694,16 +717,16 @@
           data.current.lastUpdateMethod = record.method;
           data.current.lastUpdateAuthor = currentActor() + ' (восстановление)';
           ETK.addAudit(data, currentActor(), 'restore_history', 'DataSnapshot', before, record.total);
-          persist();
+          try { await persist(); } catch (e) { return; }
           toast('Версия восстановлена');
-          renderAll();
+          await renderAll();
         });
       });
     });
   }
 
   // ---------- Prize levels ----------
-  // Уменьшаем и перекодируем фото в JPEG на клиенте, чтобы не переполнить localStorage base64-строками
+  // Уменьшаем и перекодируем фото в JPEG на клиенте, чтобы не превысить лимит размера документа в JSONBin
   function readImageAsDataUrl(file, maxDim, callback){
     var reader = new FileReader();
     reader.onload = function(ev){
@@ -776,7 +799,7 @@
             removeImgBtn.style.display = 'none';
           });
         }
-        box.querySelector('.pl-save').addEventListener('click', function(){
+        box.querySelector('.pl-save').addEventListener('click', async function(){
           var before = JSON.stringify(Object.assign({}, level, { image: level.image ? '[image]' : null }));
           level.threshold = parseInt(box.querySelector('.pl-threshold').value,10) || level.threshold;
           level.winnersCount = parseInt(box.querySelector('.pl-winners').value,10) || level.winnersCount;
@@ -786,23 +809,23 @@
           level.image = pendingImage;
           var after = JSON.stringify(Object.assign({}, level, { image: level.image ? '[image]' : null }));
           ETK.addAudit(data, currentActor(), 'prize_level_update', 'PrizeLevel', before, after);
-          persist();
+          try { await persist(); } catch (e) { return; }
           toast('Уровень сохранён');
-          renderAll();
+          await renderAll();
         });
         box.querySelector('.pl-delete').addEventListener('click', function(){
-          showModal('Удалить уровень?', 'Уровень «' + level.name + '» будет удалён с публичной страницы.', function(){
+          showModal('Удалить уровень?', 'Уровень «' + level.name + '» будет удалён с публичной страницы.', async function(){
             data.prizeLevels = data.prizeLevels.filter(function(p){ return p.id !== level.id; });
             ETK.addAudit(data, currentActor(), 'prize_level_delete', 'PrizeLevel', level.name, null);
-            persist();
+            try { await persist(); } catch (e) { return; }
             toast('Уровень удалён');
-            renderAll();
+            await renderAll();
           });
         });
       }
     });
   }
-  document.getElementById('prize-add-btn').addEventListener('click', function(){
+  document.getElementById('prize-add-btn').addEventListener('click', async function(){
     if (!can('editPrizes')) return;
     var maxOrder = data.prizeLevels.reduce(function(m,p){ return Math.max(m,p.sortOrder); }, 0);
     data.prizeLevels.push({
@@ -810,8 +833,8 @@
       winnersCount: 1, sortOrder: maxOrder+1, enabled: true, image: null
     });
     ETK.addAudit(data, currentActor(), 'prize_level_create', 'PrizeLevel', null, 'Новый уровень');
-    persist();
-    renderAll();
+    try { await persist(); } catch (e) { return; }
+    await renderAll();
   });
 
   // ---------- Draw ----------
@@ -862,7 +885,7 @@
     if (!m.eligiblePool || !can('finalizeDraw')) return;
     var count = parseInt(document.getElementById('draw-winners-count').value,10) || 1;
     showModal('Подтвердите финальный розыгрыш', 'Результат будет зафиксирован и станет неизменяемым. Продолжить?', function(){
-      showModal('Второе подтверждение', 'Вы уверены? Отменить финальный розыгрыш можно только отдельным протоколом суперадминистратора.', function(){
+      showModal('Второе подтверждение', 'Вы уверены? Отменить финальный розыгрыш можно только отдельным протоколом суперадминистратора.', async function(){
         var winners = pickRandomWinners(m.eligiblePool, count);
         var draw = {
           id: ETK.uid('draw'), date: ETK.nowIso(), poolSize: m.eligiblePool.length,
@@ -870,10 +893,10 @@
         };
         data.draws.unshift(draw);
         ETK.addAudit(data, currentActor(), 'draw_finalize', 'Draw', null, draw.id);
-        persist();
+        try { await persist(); } catch (e) { return; }
         toast('Розыгрыш проведён и сохранён');
         document.getElementById('draw-result').innerHTML = '<p><strong>Финальный розыгрыш сохранён.</strong> Победители: ' + winners.join(', ') + '</p>';
-        renderAll();
+        await renderAll();
       });
     });
   });
@@ -937,11 +960,12 @@
         (editable ? '<button class="btn btn-danger faq-remove">Удалить вопрос</button>' : '');
       faqEditor.appendChild(row);
       if (editable) {
-        row.querySelector('.faq-q').addEventListener('change', function(){ item.question = this.value; });
-        row.querySelector('.faq-a').addEventListener('change', function(){ item.answer = this.value; });
-        row.querySelector('.faq-remove').addEventListener('click', function(){
+        row.querySelector('.faq-q').addEventListener('change', function(){ item.question = this.value; persist(); });
+        row.querySelector('.faq-a').addEventListener('change', function(){ item.answer = this.value; persist(); });
+        row.querySelector('.faq-remove').addEventListener('click', async function(){
           c.faq = c.faq.filter(function(f){ return f.id !== item.id; });
-          renderAll();
+          try { await persist(); } catch (e) { return; }
+          await renderAll();
         });
       }
     });
@@ -957,7 +981,7 @@
     document.getElementById('critical-locked').style.display = criticalEditable ? 'none' : 'block';
     document.getElementById('settings-save-btn').disabled = !criticalEditable;
   }
-  document.getElementById('content-save-btn').addEventListener('click', function(){
+  document.getElementById('content-save-btn').addEventListener('click', async function(){
     if (!can('editContent')) return;
     var c = data.content;
     c.title = document.getElementById('c-title').value;
@@ -968,20 +992,20 @@
     c.rulesText = document.getElementById('c-rules').value;
     c.heroNote = document.getElementById('c-hero-note').value;
     ETK.addAudit(data, currentActor(), 'content_update', 'Content', null, 'Тексты обновлены');
-    persist();
+    try { await persist(); } catch (e) { return; }
     toast('Тексты сохранены');
   });
-  document.getElementById('header-save-btn').addEventListener('click', function(){
+  document.getElementById('header-save-btn').addEventListener('click', async function(){
     if (!can('editContent')) return;
     var c = data.content;
     c.header.brandMark = document.getElementById('h-brand-mark').value;
     c.header.brandText = document.getElementById('h-brand-text').value;
     c.header.navLabel = document.getElementById('h-nav-label').value;
     ETK.addAudit(data, currentActor(), 'content_update', 'Content', null, 'Шапка обновлена');
-    persist();
+    try { await persist(); } catch (e) { return; }
     toast('Шапка сохранена');
   });
-  document.getElementById('titles-save-btn').addEventListener('click', function(){
+  document.getElementById('titles-save-btn').addEventListener('click', async function(){
     if (!can('editContent')) return;
     var t = data.content.sectionTitles;
     t.advantages = document.getElementById('t-advantages').value;
@@ -991,10 +1015,10 @@
     t.steps = document.getElementById('t-steps').value;
     t.faq = document.getElementById('t-faq').value;
     ETK.addAudit(data, currentActor(), 'content_update', 'Content', null, 'Заголовки разделов обновлены');
-    persist();
+    try { await persist(); } catch (e) { return; }
     toast('Заголовки сохранены');
   });
-  document.getElementById('visibility-save-btn').addEventListener('click', function(){
+  document.getElementById('visibility-save-btn').addEventListener('click', async function(){
     if (!can('editContent')) return;
     var s = data.content.sections;
     s.advantages = document.getElementById('v-advantages').checked;
@@ -1005,15 +1029,16 @@
     s.faq = document.getElementById('v-faq').checked;
     s.finalCta = document.getElementById('v-final-cta').checked;
     ETK.addAudit(data, currentActor(), 'content_update', 'Content', null, 'Видимость разделов обновлена');
-    persist();
+    try { await persist(); } catch (e) { return; }
     toast('Видимость разделов сохранена');
   });
-  document.getElementById('faq-add-btn').addEventListener('click', function(){
+  document.getElementById('faq-add-btn').addEventListener('click', async function(){
     if (!can('editContent')) return;
     data.content.faq.push({ id: ETK.uid('f'), question: 'Новый вопрос', answer: 'Новый ответ' });
-    renderAll();
+    try { await persist(); } catch (e) { return; }
+    await renderAll();
   });
-  document.getElementById('settings-save-btn').addEventListener('click', function(){
+  document.getElementById('settings-save-btn').addEventListener('click', async function(){
     if (!can('critical')) return;
     var camp = data.campaign;
     var before = JSON.stringify(camp);
@@ -1022,15 +1047,22 @@
     camp.targetPercent = parseFloat(document.getElementById('s-target').value);
     camp.status = document.getElementById('s-status').value;
     ETK.addAudit(data, currentActor(), 'critical_settings_update', 'Campaign', before, JSON.stringify(camp));
-    persist();
+    try { await persist(); } catch (e) { return; }
     toast('Критические настройки сохранены');
-    renderAll();
+    await renderAll();
   });
   document.getElementById('reset-btn').addEventListener('click', function(){
-    showModal('Сбросить все демо-данные?', 'Все изменения будут потеряны и заменены значениями по умолчанию из ТЗ.', function(){
-      data = ETK.reset();
+    showModal('Сбросить все демо-данные?', 'Все изменения будут потеряны и заменены значениями по умолчанию из ТЗ.', async function(){
+      try {
+        data = await ETK.reset(ensureAdminKey());
+      } catch (e) {
+        toast('Не удалось сбросить данные: проверьте пароль администратора и соединение');
+        adminKey = '';
+        sessionStorage.removeItem('etk_admin_key');
+        return;
+      }
       toast('Демо-данные сброшены');
-      renderAll();
+      await renderAll();
     });
   });
 
@@ -1060,8 +1092,13 @@
     document.getElementById('update-body').style.display = allowed ? 'block' : 'none';
   }
 
-  function renderAll(){
-    data = ETK.load();
+  async function renderAll(){
+    try {
+      data = await ETK.load();
+    } catch (e) {
+      toast('Не удалось загрузить данные с сервера — проверьте соединение и обновите страницу');
+      return;
+    }
     renderDashboard();
     renderUpdateAccess();
     renderHistory();
