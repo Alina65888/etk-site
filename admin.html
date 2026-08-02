@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель конкурса ЭТК (демо)</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --sibur-dna:#008C95;
+    --sibur-dark:#00313C;
+    --sibur-mint:#77E2C3;
+    --sibur-orange:#E04E39;
+    --bg:#F5F7F7;
+    --panel:#FFFFFF;
+    --border:#E3E6E6;
+    --text:#1F2A2C;
+    --muted:#6B7676;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Roboto', Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  a{ color:var(--sibur-dna); }
+  :focus-visible{ outline:3px solid var(--sibur-dna); outline-offset:2px; }
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  .demo-banner{
+    background:var(--sibur-dark);
+    color:#fff;
+    font-size:0.8rem;
+    text-align:center;
+    padding:8px 12px;
+  }
+
+  .topbar{
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+    padding:12px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .topbar h1{
+    font-size:1.05rem;
+    margin:0;
+    font-weight:700;
+    color:var(--sibur-dark);
+  }
+  .role-switch{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:0.85rem;
+  }
+  .role-switch select{
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-size:0.85rem;
+  }
+
+  .layout{
+    display:flex;
+    min-height:calc(100vh - 90px);
+  }
+  nav.sidebar{
+    width:220px;
+    flex-shrink:0;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    padding:16px 10px;
+  }
+  nav.sidebar button{
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:10px 12px;
+    border:none;
+    background:none;
+    border-radius:8px;
+    font-size:0.88rem;
+    color:var(--text);
+    cursor:pointer;
+    margin-bottom:2px;
+  }
+  nav.sidebar button:hover{ background:#EEF3F3; }
+  nav.sidebar button.active{
+    background:var(--sibur-dna);
+    color:#fff;
+    font-weight:700;
+  }
+
+  main{ flex:1; padding:22px 26px 60px; max-width:1080px; }
+
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  h2.panel-title{
+    font-size:1.25rem;
+    margin:0 0 4px;
+    color:var(--sibur-dark);
+  }
+  p.panel-desc{
+    color:var(--muted);
+    font-size:0.88rem;
+    margin:0 0 20px;
+  }
+
+  .grid{ display:grid; gap:14px; }
+  .grid.cols-4{ grid-template-columns:repeat(4,1fr); }
+  .grid.cols-2{ grid-template-columns:repeat(2,1fr); }
+  @media (max-width:900px){
+    .grid.cols-4{ grid-template-columns:repeat(2,1fr); }
+    .grid.cols-2{ grid-template-columns:1fr; }
+  }
+
+  .stat-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px;
+  }
+  .stat-value{ font-size:1.6rem; font-weight:900; color:var(--sibur-dna); }
+  .stat-label{ font-size:0.78rem; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:.03em; }
+
+  .panel-box{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:18px;
+  }
+  .panel-box h3{ margin:0 0 12px; font-size:1rem; color:var(--sibur-dark); }
+
+  label{ font-size:0.85rem; font-weight:500; display:block; margin-bottom:4px; }
+  input[type=text], input[type=number], input[type=url], input[type=file], textarea, select{
+    width:100%;
+    padding:9px 10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:0.9rem;
+    font-family:inherit;
+    margin-bottom:12px;
+  }
+  textarea{ resize:vertical; min-height:70px; }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:9px 16px;
+    border-radius:8px;
+    border:1px solid transparent;
+    font-size:0.86rem;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-primary{ background:var(--sibur-dna); color:#fff; }
+  .btn-primary:hover{ background:#00747c; }
+  .btn-orange{ background:var(--sibur-orange); color:#fff; }
+  .btn-orange:hover{ background:#c6402e; }
+  .btn-ghost{ background:#fff; border-color:var(--border); color:var(--text); }
+  .btn-ghost:hover{ background:#f2f2f2; }
+  .btn-danger{ background:#fff; border-color:#e0a39a; color:#b23223; }
+  .btn:disabled{ opacity:0.45; cursor:not-allowed; }
+
+  table{ width:100%; border-collapse:collapse; font-size:0.85rem; }
+  th, td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th{ color:var(--muted); font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:.03em; }
+  tr:last-child td{ border-bottom:none; }
+
+  .badge{ display:inline-block; padding:2px 9px; border-radius:999px; font-size:0.72rem; font-weight:700; }
+  .badge.list{ background:#E8F6FF; color:#1467A6; }
+  .badge.number{ background:#FFF1E8; color:#B35A2A; }
+
+  .note{ font-size:0.8rem; color:var(--muted); margin-top:6px; }
+  .warn-box{
+    background:#FFF4E5; border:1px solid #F2CB92; color:#7A4A00;
+    border-radius:8px; padding:10px 12px; font-size:0.82rem; margin-bottom:14px;
+  }
+  .locked-note{
+    background:#F2F2F2; border-radius:8px; padding:10px 12px; font-size:0.8rem; color:var(--muted); margin-bottom:12px;
+  }
+
+  .toggle-row{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+
+  .method-switch{ display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+  .method-switch button{
+    flex:1;
+    min-width:200px;
+    padding:16px;
+    border-radius:12px;
+    border:2px solid var(--border);
+    background:#fff;
+    cursor:pointer;
+    text-align:left;
+  }
+  .method-switch button.active{ border-color:var(--sibur-dna); background:#EFFBFB; }
+  .method-switch strong{ display:block; margin-bottom:4px; font-size:0.92rem; }
+  .method-switch span{ font-size:0.78rem; color:var(--muted); }
+
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,20,24,0.5);
+    display:flex; align-items:center; justify-content:center; padding:16px; z-index:100;
+  }
+  .modal-overlay.hidden{ display:none; }
+  .modal{
+    background:#fff; border-radius:14px; padding:24px; max-width:460px; width:100%;
+  }
+  .modal h3{ margin-top:0; }
+  .modal .actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:18px; }
+
+  .toast{
+    position:fixed; bottom:20px; right:20px; background:var(--sibur-dark); color:#fff;
+    padding:12px 18px; border-radius:10px; font-size:0.85rem; box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    opacity:0; transform:translateY(10px); transition:all .25s ease; z-index:200; max-width:320px;
+  }
+  .toast.visible{ opacity:1; transform:translateY(0); }
+
+  .pill-role{ font-size:0.72rem; padding:2px 8px; border-radius:999px; background:#EEF3F3; color:var(--muted); }
+
+  .pl-image-row{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+  .pl-image-preview{ width:72px; height:72px; object-fit:cover; border-radius:8px; border:1px solid var(--border); flex-shrink:0; }
+  .pl-image-placeholder{
+    width:72px; height:72px; border-radius:8px; background:#F0F0F0; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    font-size:0.68rem; color:var(--muted); padding:4px;
+  }
+  .pl-image-controls{ flex:1; min-width:180px; }
+  .pl-image-controls input[type=file]{ margin-bottom:6px; }
+</style>
+</head>
+<body>
+
+<div class="demo-banner">Демо-режим: авторизация и хранение данных — только в этом браузере (localStorage), без реального backend. Роль выбирается вручную для демонстрации прав доступа.</div>
+
+<div class="topbar">
+  <h1>Админ-панель · Конкурс «Переходим на ЭТК»</h1>
+  <div class="role-switch">
+    <span class="pill-role">demo-логин</span>
+    <label for="role-select" class="visually-hidden">Роль</label>
+    <select id="role-select">
+      <option value="content_admin">Контент-администратор / HR</option>
+      <option value="super_admin">Суперадминистратор</option>
+      <option value="viewer">Viewer (только просмотр)</option>
+    </select>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <button data-tab="dashboard" class="active">Дашборд</button>
+    <button data-tab="update">Обновление данных</button>
+    <button data-tab="history">История обновлений</button>
+    <button data-tab="prizes">Призовые уровни</button>
+    <button data-tab="draw">Розыгрыш</button>
+    <button data-tab="content">Контент и настройки</button>
+    <button data-tab="audit">Аудит</button>
+  </nav>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <section class="tab-panel active" id="tab-dashboard">
+      <h2 class="panel-title">Дашборд</h2>
+      <p class="panel-desc">Быстрая проверка актуальности данных конкурса.</p>
+      <div class="grid cols-4">
+        <div class="stat-card"><div class="stat-value" id="d-total">—</div><div class="stat-label">Перешли на ЭТК</div></div>
+        <div class="stat-card"><div class="stat-value" id="d-percent">—</div><div class="stat-label">Доля от базы</div></div>
+        <div class="stat-card"><div class="stat-value" id="d-growth">—</div><div class="stat-label">Прирост за конкурс</div></div>
+        <div class="stat-card"><div class="stat-value" id="d-next" style="font-size:1.05rem;">—</div><div class="stat-label">Ближайший уровень</div></div>
+      </div>
+      <div class="panel-box" style="margin-top:16px;">
+        <h3>Актуальность данных</h3>
+        <p style="margin:0;">Последнее обновление: <strong id="d-updated">—</strong> · способ: <span id="d-method">—</span> · автор: <span id="d-author">—</span></p>
+      </div>
+    </section>
+
+    <!-- UPDATE -->
+    <section class="tab-panel" id="tab-update">
+      <h2 class="panel-title">Обновление данных</h2>
+      <p class="panel-desc">Выберите один из двух способов. Новый список полностью заменяет предыдущий; ввод числа обновляет только публичную статистику.</p>
+
+      <div id="update-locked" class="locked-note" style="display:none;">У роли «Viewer» нет прав на обновление данных.</div>
+
+      <div id="update-body">
+        <div class="method-switch">
+          <button type="button" id="method-list-btn" class="active">
+            <strong>Загрузить актуальный список</strong>
+            <span>CSV/XLSX с employee_id — формирует пул для розыгрыша</span>
+          </button>
+          <button type="button" id="method-number-btn">
+            <strong>Указать текущее число</strong>
+            <span>Обновляет только публичный счётчик</span>
+          </button>
+        </div>
+
+        <div class="panel-box" id="method-list-panel">
+          <h3>Способ 1 — загрузить актуальный список</h3>
+          <label for="file-input">Файл CSV (колонка employee_id первой строкой — заголовок необязателен)</label>
+          <input type="file" id="file-input" accept=".csv,text/csv">
+          <div id="list-preview" style="display:none;">
+            <p style="font-size:0.88rem;">Файл: <strong id="list-filename">—</strong> · строк: <strong id="list-rows">0</strong> · уникальных employee_id: <strong id="list-unique">0</strong> · дублей: <strong id="list-dupes">0</strong></p>
+            <button class="btn btn-primary" id="list-confirm-btn">Подтвердить и сохранить как актуальный список</button>
+          </div>
+          <p class="note">Пример строки: <code>001234,Иванов Иван Иванович,2026-08-01,Завод полиэтилена</code>. ФИО и подразделение в демо не сохраняются в открытом виде.</p>
+        </div>
+
+        <div class="panel-box" id="method-number-panel" style="display:none;">
+          <h3>Способ 2 — указать текущее число</h3>
+          <label for="number-input">Текущее общее число перешедших (0–4 424)</label>
+          <input type="number" id="number-input" min="0" max="4424" step="1">
+          <label for="number-comment">Комментарий (необязательно)</label>
+          <textarea id="number-comment" placeholder="Например: сверка с кадровой системой за август"></textarea>
+          <div id="number-preview" class="note" style="display:none;"></div>
+          <button class="btn btn-primary" id="number-save-btn">Сохранить</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="tab-panel" id="tab-history">
+      <h2 class="panel-title">История обновлений</h2>
+      <p class="panel-desc">Восстановление предыдущей версии доступно только суперадминистратору.</p>
+      <div class="panel-box">
+        <table>
+          <thead><tr><th>Дата</th><th>Способ</th><th>Автор</th><th>Итог</th><th>Файл / комментарий</th><th></th></tr></thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PRIZES -->
+    <section class="tab-panel" id="tab-prizes">
+      <h2 class="panel-title">Призовые уровни</h2>
+      <p class="panel-desc">Пороги и призы хранятся в базе и редактируются без изменения кода.</p>
+      <div id="prizes-list"></div>
+      <button class="btn btn-ghost" id="prize-add-btn" style="margin-top:8px;">+ Добавить уровень</button>
+    </section>
+
+    <!-- DRAW -->
+    <section class="tab-panel" id="tab-draw">
+      <h2 class="panel-title">Модуль розыгрыша</h2>
+      <p class="panel-desc">Доступен при наличии базового и актуального списка. Финальный розыгрыш подтверждает только суперадминистратор.</p>
+
+      <div class="warn-box">Демо использует <code>crypto.getRandomValues</code> в браузере только для наглядности. В продакшене генератор случайных чисел и вся логика розыгрыша должны выполняться на сервере (п.7 ТЗ).</div>
+
+      <div class="panel-box">
+        <h3>Пул участников</h3>
+        <p id="draw-pool-info" style="margin:0 0 10px;">—</p>
+        <label for="draw-winners-count">Число победителей для розыгрыша</label>
+        <input type="number" id="draw-winners-count" min="1" value="3" style="max-width:160px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-ghost" id="draw-test-btn">Тестовый розыгрыш (без сохранения)</button>
+          <button class="btn btn-orange" id="draw-final-btn">Финальный розыгрыш</button>
+        </div>
+        <div id="draw-result" style="margin-top:14px;"></div>
+      </div>
+
+      <div class="panel-box">
+        <h3>Проведённые розыгрыши</h3>
+        <table>
+          <thead><tr><th>Дата</th><th>ID</th><th>Пул</th><th>Победители</th><th>Ответственный</th></tr></thead>
+          <tbody id="draws-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CONTENT & SETTINGS -->
+    <section class="tab-panel" id="tab-content">
+      <h2 class="panel-title">Контент и настройки</h2>
+
+      <div class="panel-box">
+        <h3>Тексты публичной страницы</h3>
+        <label for="c-title">Заголовок</label>
+        <textarea id="c-title"></textarea>
+        <label for="c-subtitle">Подзаголовок (доступны переменные {total} и {targetPercent})</label>
+        <textarea id="c-subtitle"></textarea>
+        <label for="c-cta">Текст кнопки CTA</label>
+        <input type="text" id="c-cta">
+        <label for="c-link">Ссылка CTA (инструкция по переходу)</label>
+        <input type="url" id="c-link">
+        <label for="c-rules">Текст правил</label>
+        <textarea id="c-rules"></textarea>
+        <label for="c-hero-note">Мелкая подпись под кнопкой на первом экране</label>
+        <input type="text" id="c-hero-note">
+        <button class="btn btn-primary" id="content-save-btn">Сохранить тексты</button>
+      </div>
+
+      <div class="panel-box">
+        <h3>Шапка сайта</h3>
+        <div class="grid cols-2">
+          <div><label for="h-brand-mark">Иконка-метка в шапке (2–4 символа)</label><input type="text" id="h-brand-mark" maxlength="4"></div>
+          <div><label for="h-nav-label">Текст ссылки навигации</label><input type="text" id="h-nav-label"></div>
+        </div>
+        <label for="h-brand-text">Название конкурса в шапке</label>
+        <input type="text" id="h-brand-text">
+        <button class="btn btn-primary" id="header-save-btn">Сохранить шапку</button>
+      </div>
+
+      <div class="panel-box">
+        <h3>Заголовки разделов</h3>
+        <p class="panel-desc" style="margin-bottom:12px;">Названия секций публичной страницы (H2), без изменения их содержимого.</p>
+        <label for="t-counter">Раздел «Текущий результат»</label>
+        <input type="text" id="t-counter">
+        <label for="t-progress">Раздел «Прогресс до цели»</label>
+        <input type="text" id="t-progress">
+        <label for="t-prizes">Раздел «Призовая лестница»</label>
+        <input type="text" id="t-prizes">
+        <label for="t-steps">Раздел «Как участвовать»</label>
+        <input type="text" id="t-steps">
+        <label for="t-faq">Раздел «Правила и вопросы»</label>
+        <input type="text" id="t-faq">
+        <button class="btn btn-primary" id="titles-save-btn">Сохранить заголовки</button>
+      </div>
+
+      <div class="panel-box">
+        <h3>Видимость разделов сайта</h3>
+        <p class="panel-desc" style="margin-bottom:12px;">Скрытые разделы не отображаются на публичной странице, но их содержимое сохраняется и не теряется.</p>
+        <div class="toggle-row"><input type="checkbox" id="v-counter"><label for="v-counter" style="margin:0;">Текущий результат (счётчик)</label></div>
+        <div class="toggle-row"><input type="checkbox" id="v-progress"><label for="v-progress" style="margin:0;">Прогресс до цели и прирост</label></div>
+        <div class="toggle-row"><input type="checkbox" id="v-prizes"><label for="v-prizes" style="margin:0;">Призовая лестница</label></div>
+        <div class="toggle-row"><input type="checkbox" id="v-steps"><label for="v-steps" style="margin:0;">Как участвовать</label></div>
+        <div class="toggle-row"><input type="checkbox" id="v-faq"><label for="v-faq" style="margin:0;">Правила и вопросы (FAQ)</label></div>
+        <div class="toggle-row"><input type="checkbox" id="v-final-cta"><label for="v-final-cta" style="margin:0;">Финальный призыв к действию</label></div>
+        <button class="btn btn-primary" id="visibility-save-btn">Сохранить видимость</button>
+      </div>
+
+      <div class="panel-box">
+        <h3>FAQ</h3>
+        <div id="faq-editor"></div>
+        <button class="btn btn-ghost" id="faq-add-btn">+ Добавить вопрос</button>
+      </div>
+
+      <div class="panel-box" id="critical-settings-box">
+        <h3>Критические настройки</h3>
+        <div id="critical-locked" class="locked-note" style="display:none;">Изменение знаменателя, baseline и цели доступно только суперадминистратору.</div>
+        <label for="s-baseline">Baseline (стартовое число перешедших)</label>
+        <input type="number" id="s-baseline">
+        <label for="s-population">Знаменатель (сотрудников в базе)</label>
+        <input type="number" id="s-population">
+        <label for="s-target">Цель, %</label>
+        <input type="number" id="s-target">
+        <label for="s-status">Статус конкурса</label>
+        <select id="s-status">
+          <option value="active">Активен</option>
+          <option value="completed">Завершён</option>
+        </select>
+        <button class="btn btn-primary" id="settings-save-btn">Сохранить настройки</button>
+      </div>
+
+      <div class="panel-box">
+        <h3>Служебное</h3>
+        <button class="btn btn-danger" id="reset-btn">Сбросить демо-данные к значениям по умолчанию</button>
+      </div>
+    </section>
+
+    <!-- AUDIT -->
+    <section class="tab-panel" id="tab-audit">
+      <h2 class="panel-title">Журнал аудита</h2>
+      <p class="panel-desc">Неизменяемый журнал действий. Доступен для просмотра и выгрузки.</p>
+      <button class="btn btn-ghost" id="audit-export-btn" style="margin-bottom:12px;">Выгрузить журнал (JSON)</button>
+      <div class="panel-box">
+        <table>
+          <thead><tr><th>Дата</th><th>Кто</th><th>Действие</th><th>Объект</th><th>Было → стало</th></tr></thead>
+          <tbody id="audit-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="modal-overlay hidden" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Подтвердите действие</h3>
+    <p id="modal-text"></p>
+    <div class="actions">
+      <button class="btn btn-ghost" id="modal-cancel">Отмена</button>
+      <button class="btn btn-orange" id="modal-confirm">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="etk-shared.js"></script>
+<script>
+(function(){
+  var data = ETK.load();
+  var role = 'content_admin';
+  var pendingListIds = null;
+  var pendingFileName = null;
+
+  function currentActor(){
+    return role === 'super_admin' ? 'Суперадминистратор (демо)' : (role === 'viewer' ? 'Viewer (демо)' : 'HR-администратор (демо)');
+  }
+  function can(action){
+    if (role === 'viewer') return false;
+    if (action === 'critical') return role === 'super_admin';
+    if (action === 'restoreHistory') return role === 'super_admin';
+    if (action === 'finalizeDraw') return role === 'super_admin';
+    return true; // updateData, editPrizes, editContent, testDraw
+  }
+
+  function toast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('visible');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(function(){ t.classList.remove('visible'); }, 2600);
+  }
+
+  function persist(){ ETK.save(data); }
+
+  function showModal(title, text, onConfirm){
+    var overlay = document.getElementById('modal-overlay');
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-text').textContent = text;
+    overlay.classList.remove('hidden');
+    var confirmBtn = document.getElementById('modal-confirm');
+    var cancelBtn = document.getElementById('modal-cancel');
+    function cleanup(){
+      overlay.classList.add('hidden');
+      confirmBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+    }
+    function onOk(){ cleanup(); onConfirm(); }
+    function onCancel(){ cleanup(); }
+    confirmBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  }
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('#sidebar button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#sidebar button').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.getElementById('role-select').addEventListener('change', function(e){
+    role = e.target.value;
+    renderAll();
+  });
+
+  // ---------- Dashboard ----------
+  function renderDashboard(){
+    var m = ETK.computeMetrics(data);
+    document.getElementById('d-total').textContent = ETK.formatNumber(data.current.total);
+    document.getElementById('d-percent').textContent = ETK.formatPercent(m.currentPercent);
+    document.getElementById('d-growth').textContent = (m.campaignGrowth>=0?'+':'') + ETK.formatNumber(m.campaignGrowth);
+    document.getElementById('d-next').textContent = m.nextLevel ? (m.nextLevel.name + ' (ещё ' + ETK.formatNumber(m.nextLevelGap) + ')') : 'Максимум достигнут';
+    document.getElementById('d-updated').textContent = ETK.formatDateTime(data.current.lastUpdateAt);
+    document.getElementById('d-method').textContent = data.current.lastUpdateMethod === 'list' ? 'загрузка списка' : 'ручной ввод числа';
+    document.getElementById('d-author').textContent = data.current.lastUpdateAuthor;
+  }
+
+  // ---------- Update data ----------
+  var updateMethod = 'list';
+  function setMethod(m){
+    updateMethod = m;
+    document.getElementById('method-list-btn').classList.toggle('active', m==='list');
+    document.getElementById('method-number-btn').classList.toggle('active', m==='number');
+    document.getElementById('method-list-panel').style.display = m==='list' ? 'block' : 'none';
+    document.getElementById('method-number-panel').style.display = m==='number' ? 'block' : 'none';
+  }
+  document.getElementById('method-list-btn').addEventListener('click', function(){ setMethod('list'); });
+  document.getElementById('method-number-btn').addEventListener('click', function(){ setMethod('number'); });
+
+  document.getElementById('file-input').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if (!file) return;
+    pendingFileName = file.name;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var ids = ETK.parseCsvEmployeeIds(String(ev.target.result));
+      var parsed = ETK.parseUniqueIds(ids);
+      pendingListIds = parsed.unique;
+      document.getElementById('list-preview').style.display = 'block';
+      document.getElementById('list-filename').textContent = pendingFileName;
+      document.getElementById('list-rows').textContent = ids.length;
+      document.getElementById('list-unique').textContent = parsed.unique.length;
+      document.getElementById('list-dupes').textContent = parsed.duplicates.length;
+    };
+    reader.readAsText(file, 'UTF-8');
+  });
+
+  document.getElementById('list-confirm-btn').addEventListener('click', function(){
+    if (!can('updateData') || !pendingListIds) return;
+    var before = data.current.total;
+    if (!data.lists.baselineList) {
+      data.lists.baselineList = pendingListIds.slice(); // первая загрузка фиксируется как базовая
+    }
+    data.lists.currentList = pendingListIds;
+    data.current.previousTotal = data.current.total;
+    data.current.total = pendingListIds.length;
+    data.current.lastUpdateAt = ETK.nowIso();
+    data.current.lastUpdateMethod = 'list';
+    data.current.lastUpdateAuthor = currentActor();
+    data.history.unshift({
+      id: ETK.uid('h'), date: ETK.nowIso(), method: 'list', author: currentActor(),
+      total: data.current.total, previousTotal: before, note: pendingFileName
+    });
+    ETK.addAudit(data, currentActor(), 'data_update_list', 'DataSnapshot', before, data.current.total);
+    persist();
+    toast('Список сохранён: ' + ETK.formatNumber(data.current.total) + ' уникальных сотрудников');
+    pendingListIds = null;
+    document.getElementById('list-preview').style.display = 'none';
+    document.getElementById('file-input').value = '';
+    renderAll();
+  });
+
+  document.getElementById('number-input').addEventListener('input', function(){
+    var val = parseInt(this.value, 10);
+    var prev = document.getElementById('number-preview');
+    if (isNaN(val)) { prev.style.display = 'none'; return; }
+    var pct = (val / data.campaign.population) * 100;
+    var diff = val - data.current.total;
+    prev.style.display = 'block';
+    prev.textContent = 'Новый процент: ' + ETK.formatPercent(pct) + ' · изменение относительно текущего значения: ' + (diff>=0?'+':'') + ETK.formatNumber(diff);
+  });
+
+  document.getElementById('number-save-btn').addEventListener('click', function(){
+    if (!can('updateData')) return;
+    var val = parseInt(document.getElementById('number-input').value, 10);
+    if (isNaN(val) || val < 0 || val > data.campaign.population) {
+      toast('Введите число от 0 до ' + ETK.formatNumber(data.campaign.population));
+      return;
+    }
+    var comment = document.getElementById('number-comment').value.trim();
+    showModal('Сохранить новое значение?', 'Публичный счётчик станет равен ' + ETK.formatNumber(val) + '. Действие фиксируется в истории и не может быть удалено.', function(){
+      var before = data.current.total;
+      data.current.previousTotal = data.current.total;
+      data.current.total = val;
+      data.current.lastUpdateAt = ETK.nowIso();
+      data.current.lastUpdateMethod = 'number';
+      data.current.lastUpdateAuthor = currentActor();
+      data.history.unshift({
+        id: ETK.uid('h'), date: ETK.nowIso(), method: 'number', author: currentActor(),
+        total: val, previousTotal: before, note: comment || '—'
+      });
+      ETK.addAudit(data, currentActor(), 'data_update_number', 'DataSnapshot', before, val);
+      persist();
+      toast('Значение сохранено: ' + ETK.formatNumber(val));
+      document.getElementById('number-comment').value = '';
+      renderAll();
+    });
+  });
+
+  // ---------- History ----------
+  function renderHistory(){
+    var tbody = document.getElementById('history-body');
+    tbody.innerHTML = '';
+    data.history.forEach(function(h){
+      var tr = document.createElement('tr');
+      var restoreAllowed = can('restoreHistory');
+      tr.innerHTML =
+        '<td>' + ETK.formatDateTime(h.date) + '</td>' +
+        '<td><span class="badge ' + (h.method==='list'?'list':'number') + '">' + (h.method==='list'?'Список':'Число') + '</span></td>' +
+        '<td>' + h.author + '</td>' +
+        '<td>' + ETK.formatNumber(h.total) + '</td>' +
+        '<td>' + (h.note || '—') + '</td>' +
+        '<td>' + (restoreAllowed ? '<button class="btn btn-ghost restore-btn" data-id="'+h.id+'">Восстановить</button>' : '') + '</td>';
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('.restore-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var record = data.history.find(function(h){ return h.id === btn.dataset.id; });
+        if (!record) return;
+        showModal('Восстановить версию?', 'Публичный счётчик вернётся к значению ' + ETK.formatNumber(record.total) + ' от ' + ETK.formatDateTime(record.date) + '.', function(){
+          var before = data.current.total;
+          data.current.previousTotal = data.current.total;
+          data.current.total = record.total;
+          data.current.lastUpdateAt = ETK.nowIso();
+          data.current.lastUpdateMethod = record.method;
+          data.current.lastUpdateAuthor = currentActor() + ' (восстановление)';
+          ETK.addAudit(data, currentActor(), 'restore_history', 'DataSnapshot', before, record.total);
+          persist();
+          toast('Версия восстановлена');
+          renderAll();
+        });
+      });
+    });
+  }
+
+  // ---------- Prize levels ----------
+  // Уменьшаем и перекодируем фото в JPEG на клиенте, чтобы не переполнить localStorage base64-строками
+  function readImageAsDataUrl(file, maxDim, callback){
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var img = new Image();
+      img.onload = function(){
+        var scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        var w = Math.max(1, Math.round(img.width * scale));
+        var h = Math.max(1, Math.round(img.height * scale));
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        callback(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderPrizes(){
+    var container = document.getElementById('prizes-list');
+    container.innerHTML = '';
+    var editable = can('editPrizes');
+    data.prizeLevels.slice().sort(function(a,b){return a.sortOrder-b.sortOrder;}).forEach(function(level){
+      var box = document.createElement('div');
+      box.className = 'panel-box';
+      var pendingImage = level.image || null;
+      box.innerHTML =
+        '<label>Фото приза</label>' +
+        '<div class="pl-image-row">' +
+        '<img class="pl-image-preview" src="'+(level.image||'')+'" alt="" style="'+(level.image?'':'display:none;')+'">' +
+        '<div class="pl-image-placeholder" style="'+(level.image?'display:none;':'')+'">Нет фото</div>' +
+        '<div class="pl-image-controls">' +
+        '<input type="file" class="pl-image-file" accept="image/*" '+(editable?'':'disabled')+'>' +
+        (editable ? '<button type="button" class="btn btn-ghost pl-image-remove" style="'+(level.image?'':'display:none;')+'">Удалить фото</button>' : '') +
+        '</div>' +
+        '</div>' +
+        '<div class="grid cols-2">' +
+        '<div><label>Порог (число переходов)</label><input type="number" class="pl-threshold" value="'+level.threshold+'" '+(editable?'':'disabled')+'></div>' +
+        '<div><label>Число победителей</label><input type="number" class="pl-winners" value="'+level.winnersCount+'" '+(editable?'':'disabled')+'></div>' +
+        '</div>' +
+        '<label>Название</label><input type="text" class="pl-name" value="'+level.name.replace(/"/g,'&quot;')+'" '+(editable?'':'disabled')+'>' +
+        '<label>Описание / приз</label><input type="text" class="pl-desc" value="'+level.description.replace(/"/g,'&quot;')+'" '+(editable?'':'disabled')+'>' +
+        '<div class="toggle-row"><input type="checkbox" class="pl-enabled" '+(level.enabled?'checked':'')+' '+(editable?'':'disabled')+' id="en-'+level.id+'"><label for="en-'+level.id+'" style="margin:0;">Показывать на сайте</label></div>' +
+        '<div style="display:flex; gap:10px;">' +
+        (editable ? '<button class="btn btn-primary pl-save">Сохранить</button><button class="btn btn-danger pl-delete">Удалить</button>' : '') +
+        '</div>';
+      container.appendChild(box);
+      if (editable) {
+        box.querySelector('.pl-image-file').addEventListener('change', function(e){
+          var file = e.target.files[0];
+          if (!file) return;
+          if (!/^image\//.test(file.type)) { toast('Выберите файл изображения'); return; }
+          readImageAsDataUrl(file, 480, function(dataUrl){
+            pendingImage = dataUrl;
+            var previewImg = box.querySelector('.pl-image-preview');
+            previewImg.src = dataUrl;
+            previewImg.style.display = '';
+            box.querySelector('.pl-image-placeholder').style.display = 'none';
+            var removeBtn = box.querySelector('.pl-image-remove');
+            if (removeBtn) removeBtn.style.display = '';
+          });
+        });
+        var removeImgBtn = box.querySelector('.pl-image-remove');
+        if (removeImgBtn) {
+          removeImgBtn.addEventListener('click', function(){
+            pendingImage = null;
+            box.querySelector('.pl-image-preview').style.display = 'none';
+            box.querySelector('.pl-image-placeholder').style.display = 'flex';
+            box.querySelector('.pl-image-file').value = '';
+            removeImgBtn.style.display = 'none';
+          });
+        }
+        box.querySelector('.pl-save').addEventListener('click', function(){
+          var before = JSON.stringify(Object.assign({}, level, { image: level.image ? '[image]' : null }));
+          level.threshold = parseInt(box.querySelector('.pl-threshold').value,10) || level.threshold;
+          level.winnersCount = parseInt(box.querySelector('.pl-winners').value,10) || level.winnersCount;
+          level.name = box.querySelector('.pl-name').value;
+          level.description = box.querySelector('.pl-desc').value;
+          level.enabled = box.querySelector('.pl-enabled').checked;
+          level.image = pendingImage;
+          var after = JSON.stringify(Object.assign({}, level, { image: level.image ? '[image]' : null }));
+          ETK.addAudit(data, currentActor(), 'prize_level_update', 'PrizeLevel', before, after);
+          persist();
+          toast('Уровень сохранён');
+          renderAll();
+        });
+        box.querySelector('.pl-delete').addEventListener('click', function(){
+          showModal('Удалить уровень?', 'Уровень «' + level.name + '» будет удалён с публичной страницы.', function(){
+            data.prizeLevels = data.prizeLevels.filter(function(p){ return p.id !== level.id; });
+            ETK.addAudit(data, currentActor(), 'prize_level_delete', 'PrizeLevel', level.name, null);
+            persist();
+            toast('Уровень удалён');
+            renderAll();
+          });
+        });
+      }
+    });
+  }
+  document.getElementById('prize-add-btn').addEventListener('click', function(){
+    if (!can('editPrizes')) return;
+    var maxOrder = data.prizeLevels.reduce(function(m,p){ return Math.max(m,p.sortOrder); }, 0);
+    data.prizeLevels.push({
+      id: ETK.uid('p'), threshold: data.campaign.baseline, name: 'Новый уровень', description: 'Описание приза',
+      winnersCount: 1, sortOrder: maxOrder+1, enabled: true, image: null
+    });
+    ETK.addAudit(data, currentActor(), 'prize_level_create', 'PrizeLevel', null, 'Новый уровень');
+    persist();
+    renderAll();
+  });
+
+  // ---------- Draw ----------
+  function cryptoRandomInt(maxExclusive){
+    var arr = new Uint32Array(1);
+    crypto.getRandomValues(arr);
+    return arr[0] % maxExclusive;
+  }
+  function pickRandomWinners(pool, count){
+    var copy = pool.slice();
+    var winners = [];
+    count = Math.min(count, copy.length);
+    for (var i=0; i<count; i++){
+      var idx = cryptoRandomInt(copy.length);
+      winners.push(copy.splice(idx,1)[0]);
+    }
+    return winners;
+  }
+  function renderDraw(){
+    var m = ETK.computeMetrics(data);
+    var infoEl = document.getElementById('draw-pool-info');
+    if (!m.eligiblePool) {
+      infoEl.textContent = 'Пул недоступен — нужно загрузить базовый и актуальный список сотрудников (раздел «Обновление данных»).';
+      document.getElementById('draw-test-btn').disabled = true;
+      document.getElementById('draw-final-btn').disabled = true;
+    } else {
+      infoEl.textContent = 'Размер пула новых участников: ' + ETK.formatNumber(m.eligiblePool.length) + ' сотрудников.';
+      document.getElementById('draw-test-btn').disabled = !can('testDraw');
+      document.getElementById('draw-final-btn').disabled = !can('finalizeDraw');
+    }
+    var tbody = document.getElementById('draws-body');
+    tbody.innerHTML = '';
+    data.draws.forEach(function(d){
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>'+ETK.formatDateTime(d.date)+'</td><td>'+d.id+'</td><td>'+d.poolSize+'</td><td>'+d.winners.length+'</td><td>'+d.actor+'</td>';
+      tbody.appendChild(tr);
+    });
+  }
+  document.getElementById('draw-test-btn').addEventListener('click', function(){
+    var m = ETK.computeMetrics(data);
+    if (!m.eligiblePool || !can('testDraw')) return;
+    var count = parseInt(document.getElementById('draw-winners-count').value,10) || 1;
+    var winners = pickRandomWinners(m.eligiblePool, count);
+    document.getElementById('draw-result').innerHTML = '<p><strong>Тестовый розыгрыш (не сохранён):</strong> ' + winners.join(', ') + '</p>';
+  });
+  document.getElementById('draw-final-btn').addEventListener('click', function(){
+    var m = ETK.computeMetrics(data);
+    if (!m.eligiblePool || !can('finalizeDraw')) return;
+    var count = parseInt(document.getElementById('draw-winners-count').value,10) || 1;
+    showModal('Подтвердите финальный розыгрыш', 'Результат будет зафиксирован и станет неизменяемым. Продолжить?', function(){
+      showModal('Второе подтверждение', 'Вы уверены? Отменить финальный розыгрыш можно только отдельным протоколом суперадминистратора.', function(){
+        var winners = pickRandomWinners(m.eligiblePool, count);
+        var draw = {
+          id: ETK.uid('draw'), date: ETK.nowIso(), poolSize: m.eligiblePool.length,
+          winners: winners, actor: currentActor()
+        };
+        data.draws.unshift(draw);
+        ETK.addAudit(data, currentActor(), 'draw_finalize', 'Draw', null, draw.id);
+        persist();
+        toast('Розыгрыш проведён и сохранён');
+        document.getElementById('draw-result').innerHTML = '<p><strong>Финальный розыгрыш сохранён.</strong> Победители: ' + winners.join(', ') + '</p>';
+        renderAll();
+      });
+    });
+  });
+
+  // ---------- Content & settings ----------
+  function renderContent(){
+    var c = data.content, camp = data.campaign;
+    document.getElementById('c-title').value = c.title;
+    document.getElementById('c-subtitle').value = c.subtitle;
+    document.getElementById('c-cta').value = c.ctaText;
+    document.getElementById('c-link').value = c.ctaLink;
+    document.getElementById('c-rules').value = c.rulesText;
+    document.getElementById('c-hero-note').value = c.heroNote;
+
+    var editable = can('editContent');
+    ['c-title','c-subtitle','c-cta','c-link','c-rules','c-hero-note'].forEach(function(id){
+      document.getElementById(id).disabled = !editable;
+    });
+
+    document.getElementById('h-brand-mark').value = c.header.brandMark;
+    document.getElementById('h-brand-text').value = c.header.brandText;
+    document.getElementById('h-nav-label').value = c.header.navLabel;
+    ['h-brand-mark','h-brand-text','h-nav-label'].forEach(function(id){
+      document.getElementById(id).disabled = !editable;
+    });
+    document.getElementById('header-save-btn').disabled = !editable;
+
+    document.getElementById('t-counter').value = c.sectionTitles.counter;
+    document.getElementById('t-progress').value = c.sectionTitles.progress;
+    document.getElementById('t-prizes').value = c.sectionTitles.prizes;
+    document.getElementById('t-steps').value = c.sectionTitles.steps;
+    document.getElementById('t-faq').value = c.sectionTitles.faq;
+    ['t-counter','t-progress','t-prizes','t-steps','t-faq'].forEach(function(id){
+      document.getElementById(id).disabled = !editable;
+    });
+    document.getElementById('titles-save-btn').disabled = !editable;
+
+    document.getElementById('v-counter').checked = c.sections.counter !== false;
+    document.getElementById('v-progress').checked = c.sections.progress !== false;
+    document.getElementById('v-prizes').checked = c.sections.prizes !== false;
+    document.getElementById('v-steps').checked = c.sections.steps !== false;
+    document.getElementById('v-faq').checked = c.sections.faq !== false;
+    document.getElementById('v-final-cta').checked = c.sections.finalCta !== false;
+    ['v-counter','v-progress','v-prizes','v-steps','v-faq','v-final-cta'].forEach(function(id){
+      document.getElementById(id).disabled = !editable;
+    });
+    document.getElementById('visibility-save-btn').disabled = !editable;
+
+    var faqEditor = document.getElementById('faq-editor');
+    faqEditor.innerHTML = '';
+    c.faq.forEach(function(item){
+      var row = document.createElement('div');
+      row.style.borderTop = '1px solid var(--border)';
+      row.style.paddingTop = '10px';
+      row.style.marginTop = '10px';
+      row.innerHTML =
+        '<label>Вопрос</label><input type="text" class="faq-q" value="'+item.question.replace(/"/g,'&quot;')+'" '+(editable?'':'disabled')+'>' +
+        '<label>Ответ</label><textarea class="faq-a" '+(editable?'':'disabled')+'>'+item.answer+'</textarea>' +
+        (editable ? '<button class="btn btn-danger faq-remove">Удалить вопрос</button>' : '');
+      faqEditor.appendChild(row);
+      if (editable) {
+        row.querySelector('.faq-q').addEventListener('change', function(){ item.question = this.value; });
+        row.querySelector('.faq-a').addEventListener('change', function(){ item.answer = this.value; });
+        row.querySelector('.faq-remove').addEventListener('click', function(){
+          c.faq = c.faq.filter(function(f){ return f.id !== item.id; });
+          renderAll();
+        });
+      }
+    });
+
+    document.getElementById('s-baseline').value = camp.baseline;
+    document.getElementById('s-population').value = camp.population;
+    document.getElementById('s-target').value = camp.targetPercent;
+    document.getElementById('s-status').value = camp.status;
+    var criticalEditable = can('critical');
+    ['s-baseline','s-population','s-target','s-status'].forEach(function(id){
+      document.getElementById(id).disabled = !criticalEditable;
+    });
+    document.getElementById('critical-locked').style.display = criticalEditable ? 'none' : 'block';
+    document.getElementById('settings-save-btn').disabled = !criticalEditable;
+  }
+  document.getElementById('content-save-btn').addEventListener('click', function(){
+    if (!can('editContent')) return;
+    var c = data.content;
+    c.title = document.getElementById('c-title').value;
+    c.subtitle = document.getElementById('c-subtitle').value;
+    c.ctaText = document.getElementById('c-cta').value;
+    c.finalCtaText = c.ctaText;
+    c.ctaLink = document.getElementById('c-link').value;
+    c.rulesText = document.getElementById('c-rules').value;
+    c.heroNote = document.getElementById('c-hero-note').value;
+    ETK.addAudit(data, currentActor(), 'content_update', 'Content', null, 'Тексты обновлены');
+    persist();
+    toast('Тексты сохранены');
+  });
+  document.getElementById('header-save-btn').addEventListener('click', function(){
+    if (!can('editContent')) return;
+    var c = data.content;
+    c.header.brandMark = document.getElementById('h-brand-mark').value;
+    c.header.brandText = document.getElementById('h-brand-text').value;
+    c.header.navLabel = document.getElementById('h-nav-label').value;
+    ETK.addAudit(data, currentActor(), 'content_update', 'Content', null, 'Шапка обновлена');
+    persist();
+    toast('Шапка сохранена');
+  });
+  document.getElementById('titles-save-btn').addEventListener('click', function(){
+    if (!can('editContent')) return;
+    var t = data.content.sectionTitles;
+    t.counter = document.getElementById('t-counter').value;
+    t.progress = document.getElementById('t-progress').value;
+    t.prizes = document.getElementById('t-prizes').value;
+    t.steps = document.getElementById('t-steps').value;
+    t.faq = document.getElementById('t-faq').value;
+    ETK.addAudit(data, currentActor(), 'content_update', 'Content', null, 'Заголовки разделов обновлены');
+    persist();
+    toast('Заголовки сохранены');
+  });
+  document.getElementById('visibility-save-btn').addEventListener('click', function(){
+    if (!can('editContent')) return;
+    var s = data.content.sections;
+    s.counter = document.getElementById('v-counter').checked;
+    s.progress = document.getElementById('v-progress').checked;
+    s.prizes = document.getElementById('v-prizes').checked;
+    s.steps = document.getElementById('v-steps').checked;
+    s.faq = document.getElementById('v-faq').checked;
+    s.finalCta = document.getElementById('v-final-cta').checked;
+    ETK.addAudit(data, currentActor(), 'content_update', 'Content', null, 'Видимость разделов обновлена');
+    persist();
+    toast('Видимость разделов сохранена');
+  });
+  document.getElementById('faq-add-btn').addEventListener('click', function(){
+    if (!can('editContent')) return;
+    data.content.faq.push({ id: ETK.uid('f'), question: 'Новый вопрос', answer: 'Новый ответ' });
+    renderAll();
+  });
+  document.getElementById('settings-save-btn').addEventListener('click', function(){
+    if (!can('critical')) return;
+    var camp = data.campaign;
+    var before = JSON.stringify(camp);
+    camp.baseline = parseInt(document.getElementById('s-baseline').value,10);
+    camp.population = parseInt(document.getElementById('s-population').value,10);
+    camp.targetPercent = parseFloat(document.getElementById('s-target').value);
+    camp.status = document.getElementById('s-status').value;
+    ETK.addAudit(data, currentActor(), 'critical_settings_update', 'Campaign', before, JSON.stringify(camp));
+    persist();
+    toast('Критические настройки сохранены');
+    renderAll();
+  });
+  document.getElementById('reset-btn').addEventListener('click', function(){
+    showModal('Сбросить все демо-данные?', 'Все изменения будут потеряны и заменены значениями по умолчанию из ТЗ.', function(){
+      data = ETK.reset();
+      toast('Демо-данные сброшены');
+      renderAll();
+    });
+  });
+
+  // ---------- Audit ----------
+  function renderAudit(){
+    var tbody = document.getElementById('audit-body');
+    tbody.innerHTML = '';
+    data.audit.forEach(function(a){
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>'+ETK.formatDateTime(a.date)+'</td><td>'+a.actor+'</td><td>'+a.action+'</td><td>'+a.entity+'</td><td style="max-width:280px; word-break:break-word;">'+(a.before!==null?String(a.before).slice(0,60)+' → ':'')+String(a.after!==null?a.after:'').slice(0,60)+'</td>';
+      tbody.appendChild(tr);
+    });
+  }
+  document.getElementById('audit-export-btn').addEventListener('click', function(){
+    var blob = new Blob([JSON.stringify(data.audit, null, 2)], { type:'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'etk-audit-log.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // ---------- Access gating for update tab ----------
+  function renderUpdateAccess(){
+    var allowed = can('updateData');
+    document.getElementById('update-locked').style.display = allowed ? 'none' : 'block';
+    document.getElementById('update-body').style.display = allowed ? 'block' : 'none';
+  }
+
+  function renderAll(){
+    data = ETK.load();
+    renderDashboard();
+    renderUpdateAccess();
+    renderHistory();
+    renderPrizes();
+    renderDraw();
+    renderContent();
+    renderAudit();
+  }
+
+  setMethod('list');
+  renderAll();
+})();
+</script>
+</body>
+</html>

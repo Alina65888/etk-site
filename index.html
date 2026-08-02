@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Переходим на электронную трудовую книжку | Конкурс</title>
+<meta name="description" content="Общий прогресс перехода сотрудников на электронную трудовую книжку и призовая механика конкурса.">
+
+<!-- В продакшене Roboto рекомендуется размещать локально (см. п.10.1 ТЗ), здесь — CDN для демо -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --sibur-dna: #008C95;
+    --sibur-dark: #00313C;
+    --sibur-mint: #77E2C3;
+    --sibur-white: #FFFFFF;
+    --sibur-orange: #E04E39;
+    --sibur-beige: #FFE6D7;
+    --sibur-gray-70: #3B3B3B;
+    --sibur-gray-40: #767676;
+    --sibur-gray-28: #CCCCCC;
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+    --gap: 16px;
+    --container: 1200px;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    font-family:'Roboto', Arial, sans-serif;
+    color:var(--sibur-dark);
+    background-color: var(--sibur-dna);
+    background-image:
+      radial-gradient(rgba(255,255,255,0.16) 1.5px, transparent 1.5px),
+      radial-gradient(rgba(255,255,255,0.10) 1.5px, transparent 1.5px);
+    background-size: 28px 28px, 28px 28px;
+    background-position: 0 0, 14px 14px;
+    min-height:100vh;
+  }
+
+  a{color:inherit;}
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  :focus-visible{
+    outline: 3px solid var(--sibur-mint);
+    outline-offset: 2px;
+  }
+
+  .skip-link{
+    position:absolute;
+    top:-48px;
+    left:8px;
+    background:var(--sibur-white);
+    color:var(--sibur-dna);
+    padding:10px 18px;
+    border-radius:8px;
+    font-weight:700;
+    font-size:0.85rem;
+    text-decoration:none;
+    z-index:100;
+    transition: top .2s ease;
+  }
+  .skip-link:focus{ top:8px; }
+
+  .container{
+    max-width:var(--container);
+    margin:0 auto;
+    padding: 0 16px;
+  }
+  @media (min-width:1024px){
+    .container{ padding: 0 32px; }
+  }
+
+  /* ---------- Header ---------- */
+  header.site-header{
+    padding: 18px 0;
+  }
+  .header-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:900;
+    color:var(--sibur-white);
+    font-size:1.05rem;
+    letter-spacing:0.02em;
+    text-decoration:none;
+    min-width:0;
+    flex:1 1 auto;
+  }
+  .brand > span:last-child{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .brand-mark{
+    width:32px;height:32px;border-radius:8px;
+    background:var(--sibur-white);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--sibur-dna);
+    font-weight:900;
+    font-size:0.72rem;
+    letter-spacing:-0.02em;
+    overflow:hidden;
+    flex-shrink:0;
+  }
+  .header-nav{ flex-shrink:0; }
+  .header-nav a{
+    color:var(--sibur-white);
+    text-decoration:none;
+    font-size:0.9rem;
+    font-weight:500;
+    opacity:0.9;
+    padding:12px 6px;
+    display:inline-block;
+  }
+  .header-nav a:hover, .header-nav a:focus-visible{ text-decoration:underline; }
+  @media (max-width:400px){
+    .brand{ font-size:0.92rem; gap:8px; }
+    .header-nav a{ font-size:0.8rem; padding:10px 4px; }
+  }
+
+  /* ---------- Card base ---------- */
+  .card{
+    background:var(--sibur-white);
+    border-radius:var(--radius-lg);
+    box-shadow: 0 12px 32px rgba(0,20,24,0.18);
+  }
+
+  main{ padding-bottom:56px; }
+  @media (max-width:640px){
+    /* Запас снизу, чтобы плавающая кнопка не перекрывала финальный блок на телефонах с safe-area */
+    main{ padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    padding: 8px 0 28px;
+  }
+  .hero-card{
+    position:relative;
+    padding: 36px 24px;
+    text-align:center;
+  }
+  @media (min-width:768px){
+    .hero-card{ padding: 52px 64px; }
+  }
+  .hero-marker{
+    position:absolute;
+    top:-14px; right:24px;
+    width:28px;height:28px;
+    border-radius:50%;
+    background:var(--sibur-orange);
+    box-shadow:0 4px 12px rgba(224,78,57,0.5);
+  }
+  .hero-title{
+    font-size:1.5rem;
+    font-weight:900;
+    line-height:1.25;
+    margin:0 0 14px;
+    color:var(--sibur-dark);
+  }
+  @media (min-width:768px){
+    .hero-title{ font-size:2.1rem; }
+  }
+  .hero-subtitle{
+    font-size:1rem;
+    line-height:1.55;
+    color:var(--sibur-gray-70);
+    max-width:640px;
+    margin:0 auto 26px;
+  }
+  .btn-cta{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background:var(--sibur-orange);
+    color:var(--sibur-white);
+    font-weight:700;
+    font-size:1rem;
+    text-decoration:none;
+    padding:14px 30px;
+    min-height:48px;
+    border-radius:999px;
+    border:none;
+    cursor:pointer;
+    box-shadow:0 8px 24px rgba(224,78,57,0.35);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-cta:hover{ transform:translateY(-2px); box-shadow:0 10px 28px rgba(224,78,57,0.45); }
+  .hero-note{
+    font-size:0.8rem;
+    color:var(--sibur-gray-40);
+    margin-top:14px;
+  }
+
+  /* ---------- Sections shared ---------- */
+  .section{ padding: 22px 0; }
+  .section-title{
+    color:var(--sibur-white);
+    font-size:1.1rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin: 0 0 14px;
+    padding-bottom:10px;
+    text-align:center;
+  }
+  .section-title::after{
+    content:'';
+    display:block;
+    width:40px;
+    height:3px;
+    border-radius:999px;
+    background:var(--sibur-mint);
+    margin:8px auto 0;
+  }
+
+  /* ---------- Counter ---------- */
+  .counter-card{
+    padding:28px 24px;
+    text-align:center;
+  }
+  .counter-value{
+    font-variant-numeric: tabular-nums;
+    font-weight:900;
+    font-size:3.4rem;
+    line-height:1;
+    color:var(--sibur-dna);
+  }
+  @media (min-width:768px){ .counter-value{ font-size:4.4rem; } }
+  .counter-sub{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-top:10px;
+    font-size:0.95rem;
+    color:var(--sibur-gray-70);
+  }
+  .counter-sub b{ color:var(--sibur-mint-text, var(--sibur-dark)); }
+  .counter-sub .pill{
+    background:#EAFBF5;
+    color:#0C6B54;
+    border-radius:999px;
+    padding:4px 12px;
+    font-weight:700;
+  }
+  .counter-remaining{
+    margin-top:16px;
+    font-size:0.95rem;
+    color:var(--sibur-dark);
+  }
+  .counter-remaining b{ color:var(--sibur-orange); }
+
+  /* ---------- Progress ---------- */
+  .progress-card{ padding:24px; margin-top:16px; }
+  .progress-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.85rem;
+    color:var(--sibur-gray-70);
+    margin-bottom:10px;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .progress-track{
+    position:relative;
+    height:16px;
+    border-radius:999px;
+    background:#EDEDED;
+    overflow:visible;
+  }
+  .progress-fill{
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(45deg, var(--sibur-dna) 0%, var(--sibur-mint) 100%);
+    width:0%;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-start-marker{
+    position:absolute;
+    top:-6px;
+    width:2px;
+    height:28px;
+    background:var(--sibur-dark);
+    opacity:0.5;
+  }
+  .progress-start-marker::after{
+    content:attr(data-label);
+    position:absolute;
+    top:-20px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:0.68rem;
+    white-space:nowrap;
+    color:var(--sibur-gray-70);
+  }
+  .progress-caption{
+    margin-top:20px;
+    font-size:0.8rem;
+    color:var(--sibur-gray-40);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .progress-fill{ transition:none; }
+  }
+
+  /* ---------- Growth ---------- */
+  .growth-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-top:16px;
+  }
+  @media (max-width:640px){
+    .growth-grid{ grid-template-columns:1fr; }
+  }
+  .growth-item{
+    padding:18px;
+    text-align:center;
+  }
+  .growth-value{
+    font-size:1.6rem;
+    font-weight:900;
+    color:var(--sibur-dna);
+  }
+  .growth-label{
+    font-size:0.78rem;
+    color:var(--sibur-gray-70);
+    margin-top:4px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+
+  /* ---------- Steps ---------- */
+  .steps-grid{
+    display:grid;
+    gap:14px;
+    grid-template-columns:1fr;
+  }
+  @media (min-width:768px){
+    .steps-grid{ grid-template-columns:repeat(3,1fr); }
+  }
+  .step-card{
+    padding:22px 20px;
+  }
+  .step-num{
+    width:34px;height:34px;
+    border-radius:50%;
+    background:var(--sibur-dna);
+    color:var(--sibur-white);
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:12px;
+  }
+  .step-title{
+    font-weight:700;
+    margin:0 0 6px;
+    font-size:1rem;
+  }
+  .step-text{
+    font-size:0.9rem;
+    color:var(--sibur-gray-70);
+    line-height:1.5;
+    margin:0;
+  }
+  .step-text a{ color:var(--sibur-dna); font-weight:700; }
+
+  /* ---------- Prize ladder ---------- */
+  .prize-grid{
+    display:grid;
+    gap:14px;
+    grid-template-columns:1fr;
+  }
+  @media (min-width:640px){
+    .prize-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (min-width:1024px){
+    .prize-grid{ grid-template-columns:repeat(3,1fr); }
+  }
+  .prize-card{
+    padding:18px;
+    border:2px solid transparent;
+    position:relative;
+  }
+  .prize-card.locked{
+    background:#F2F2F2;
+    box-shadow:none;
+    opacity:0.68;
+  }
+  .prize-card.locked .prize-name,
+  .prize-card.locked .prize-desc,
+  .prize-card.locked .prize-threshold{
+    color:var(--sibur-gray-40);
+  }
+  .prize-card.achieved{
+    border-color:var(--sibur-mint);
+    background:linear-gradient(180deg, #FFFFFF 0%, #EFFDF8 100%);
+    box-shadow:0 12px 32px rgba(119,226,195,0.45);
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .prize-card.achieved{ animation:achievedGlow 3.2s ease-in-out infinite; }
+  }
+  @keyframes achievedGlow{
+    0%, 100%{ box-shadow:0 12px 32px rgba(119,226,195,0.4); }
+    50%{ box-shadow:0 14px 40px rgba(119,226,195,0.7); }
+  }
+  .prize-card.active{
+    border-color:var(--sibur-orange);
+    box-shadow:0 12px 28px rgba(224,78,57,0.22);
+  }
+  .prize-badge{
+    display:inline-block;
+    font-size:0.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    padding:3px 10px;
+    border-radius:999px;
+    margin-bottom:10px;
+  }
+  .prize-badge.achieved{ background:#EAFBF5; color:#0C6B54; }
+  .prize-badge.active{ background:var(--sibur-beige); color:var(--sibur-orange); }
+  .prize-badge.locked{ background:#E4E4E4; color:var(--sibur-gray-70); }
+  .prize-image{
+    display:block;
+    width:100%;
+    height:140px;
+    object-fit:cover;
+    border-radius:var(--radius-sm);
+    margin:0 0 12px;
+    background:#F0F0F0;
+  }
+  .prize-card.locked .prize-image{ filter:grayscale(1); opacity:0.6; }
+  .prize-threshold{
+    font-size:0.8rem;
+    color:var(--sibur-gray-70);
+    font-variant-numeric: tabular-nums;
+  }
+  .prize-name{
+    font-weight:700;
+    font-size:1.02rem;
+    margin:4px 0 4px;
+  }
+  .prize-desc{
+    font-size:0.88rem;
+    color:var(--sibur-gray-70);
+    margin:0 0 8px;
+  }
+  .prize-winners{
+    font-size:0.82rem;
+    font-weight:700;
+    color:var(--sibur-dna);
+  }
+  .prize-card.locked .prize-winners{ color:var(--sibur-gray-40); }
+
+  @media (prefers-reduced-motion: no-preference){
+    .prize-card.just-unlocked{
+      animation: prizePulse 900ms ease-out;
+    }
+  }
+  @keyframes prizePulse{
+    0%{ transform:scale(1); }
+    35%{ transform:scale(1.03); }
+    100%{ transform:scale(1); }
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq-card{ padding:6px 20px; }
+  details.faq-item{
+    border-bottom:1px solid #EAEAEA;
+    padding:14px 0;
+  }
+  details.faq-item:last-child{ border-bottom:none; }
+  details.faq-item summary{
+    cursor:pointer;
+    font-weight:700;
+    font-size:0.98rem;
+    list-style:none;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  details.faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-icon{
+    flex-shrink:0;
+    width:22px;height:22px;
+    border-radius:50%;
+    background:#F0F0F0;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;
+    color:var(--sibur-dna);
+    transition:transform .2s ease;
+  }
+  details[open] .faq-icon{ transform:rotate(45deg); }
+  .faq-answer{
+    font-size:0.9rem;
+    color:var(--sibur-gray-70);
+    line-height:1.55;
+    margin:10px 0 0;
+  }
+  .rules-text{
+    font-size:0.9rem;
+    color:var(--sibur-gray-70);
+    line-height:1.6;
+    padding:16px 20px 4px;
+    margin:0;
+  }
+
+  /* ---------- Final CTA ---------- */
+  .final-cta{
+    text-align:center;
+    padding:32px 20px;
+  }
+  .final-cta p{
+    color:var(--sibur-gray-70);
+    margin:0 0 18px;
+  }
+
+  /* ---------- Sticky mobile CTA ---------- */
+  .sticky-cta{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:rgba(0,49,60,0.92);
+    backdrop-filter:blur(6px);
+    display:none;
+    z-index:50;
+  }
+  .sticky-cta .btn-cta{ width:100%; }
+  @media (max-width:640px){
+    .sticky-cta.visible{ display:block; }
+  }
+
+  /* Skeleton (brief loading state) */
+  .skeleton{
+    display:inline-block;
+    background:linear-gradient(90deg,#e6e6e6 25%,#f2f2f2 37%,#e6e6e6 63%);
+    background-size:400% 100%;
+    animation: skeletonShine 1.4s ease infinite;
+    border-radius:8px;
+    color:transparent !important;
+  }
+  @keyframes skeletonShine{
+    0%{ background-position:100% 50%; }
+    100%{ background-position:0 50%; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .skeleton{ animation:none; }
+  }
+
+  /* ---------- Motion: scroll reveal ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1);
+  }
+  .reveal.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .reveal.stagger-1{ transition-delay:.08s; }
+  .reveal.stagger-2{ transition-delay:.16s; }
+  .reveal.stagger-3{ transition-delay:.24s; }
+  .reveal.stagger-4{ transition-delay:.32s; }
+  .reveal.stagger-5{ transition-delay:.4s; }
+
+  @keyframes fadeInUp{
+    from{ opacity:0; transform:translateY(22px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .anim-load{ animation: fadeInUp .7s cubic-bezier(.4,0,.2,1) both; }
+  .anim-load.delay-1{ animation-delay:.12s; }
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1 !important; transform:none !important; transition:none !important; }
+    .anim-load{ animation:none !important; opacity:1 !important; }
+  }
+
+  /* ---------- Motion: card hover ---------- */
+  .growth-item, .step-card, .prize-card{
+    transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s cubic-bezier(.4,0,.2,1), border-color .3s ease;
+  }
+  .growth-item:hover, .step-card:hover, .prize-card:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 16px 36px rgba(0,20,24,0.22);
+  }
+  .prize-card.locked:hover{ transform:none; box-shadow:none; }
+  .prize-card.achieved:hover{ box-shadow:0 16px 44px rgba(119,226,195,0.6); }
+  @media (prefers-reduced-motion: reduce){
+    .growth-item, .step-card, .prize-card{ transition:none; }
+    .growth-item:hover, .step-card:hover, .prize-card:hover{ transform:none; }
+  }
+
+  /* ---------- Motion: number pop on update ---------- */
+  .counter-value.pop, .growth-value.pop{
+    animation: numberPop .4s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes numberPop{
+    0%{ transform:scale(1); }
+    40%{ transform:scale(1.06); }
+    100%{ transform:scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .counter-value.pop, .growth-value.pop{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#top">Перейти к основному содержанию</a>
+
+<header class="site-header">
+  <div class="container header-row">
+    <a class="brand" href="#top">
+      <span class="brand-mark" id="header-brand-mark" aria-hidden="true">ЭТК</span>
+      <span id="header-brand-text">Конкурс «Переходим на ЭТК»</span>
+    </a>
+    <nav class="header-nav" aria-label="Основная навигация">
+      <a href="#rules" id="header-nav-link">Правила и FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- 2. Первый экран -->
+  <section class="hero container">
+    <div class="card hero-card anim-load">
+      <span class="hero-marker" aria-hidden="true"></span>
+      <h1 class="hero-title" id="hero-title">Загрузка…</h1>
+      <p class="hero-subtitle" id="hero-subtitle">Загружаем актуальные данные конкурса…</p>
+      <a class="btn-cta" id="cta-main" href="#section-steps">
+        <span id="cta-main-text">Перейти на электронную трудовую книжку</span>
+      </a>
+      <p class="hero-note" id="hero-note">Регистрация не требуется · данные обновляются администратором</p>
+    </div>
+  </section>
+
+  <!-- 3. Главный счётчик -->
+  <section class="section container" id="section-counter" aria-labelledby="counter-title">
+    <h2 class="section-title" id="counter-title">Текущий результат</h2>
+    <div class="card counter-card anim-load delay-1">
+      <div class="counter-value skeleton" id="counter-total" aria-live="polite">0</div>
+      <div class="counter-sub">
+        <span>из <b id="counter-population">4 424</b></span>
+        <span class="pill" id="counter-percent">0,0 %</span>
+      </div>
+      <p class="counter-remaining" id="counter-remaining">Осталось <b>—</b> переходов до цели</p>
+    </div>
+  </section>
+
+  <!-- 4. Прогресс до цели -->
+  <section class="section container" id="section-progress" aria-labelledby="progress-title">
+    <h2 class="section-title" id="progress-title">Прогресс до цели</h2>
+    <div class="card progress-card reveal">
+      <div class="progress-labels">
+        <span id="progress-current-label">Текущий приз: —</span>
+        <span id="progress-target-label">Цель: 100 %</span>
+      </div>
+      <div class="progress-track" role="progressbar" id="progress-track"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+           aria-label="Прогресс перехода на электронную трудовую книжку, цель 100 процентов">
+        <div class="progress-fill" id="progress-fill"></div>
+        <div class="progress-start-marker" id="progress-start-marker" data-label="старт"></div>
+      </div>
+      <p class="progress-caption" id="progress-caption">Шкала показывает путь от 0 до цели 100 %. Стартовое значение конкурса отмечено отдельно, чтобы не создавать ложное ощущение, будто весь прогресс набран за время конкурса.</p>
+    </div>
+
+    <div class="growth-grid">
+      <div class="card growth-item reveal stagger-1">
+        <div class="growth-value" id="growth-campaign">+0</div>
+        <div class="growth-label">Прирост за конкурс</div>
+      </div>
+      <div class="card growth-item reveal stagger-2">
+        <div class="growth-value" id="growth-last">+0</div>
+        <div class="growth-label">С прошлого обновления</div>
+      </div>
+      <div class="card growth-item reveal stagger-3">
+        <div class="growth-value" id="growth-date" style="font-size:1rem;">—</div>
+        <div class="growth-label">Дата обновления</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Призовая лестница -->
+  <section class="section container" id="section-prizes" aria-labelledby="prizes-title">
+    <h2 class="section-title" id="prizes-title">Призовая лестница</h2>
+    <div class="prize-grid" id="prize-grid"></div>
+  </section>
+
+  <!-- 6. Как участвовать -->
+  <section class="section container" id="section-steps" aria-labelledby="steps-title">
+    <h2 class="section-title" id="steps-title">Как участвовать</h2>
+    <div class="steps-grid">
+      <div class="card step-card reveal stagger-1">
+        <div class="step-num" aria-hidden="true">1</div>
+        <p class="step-title">Перейдите к инструкции</p>
+        <p class="step-text">Откройте <a id="step-link" href="#" target="_blank" rel="noopener">инструкцию по переходу</a> на электронную трудовую книжку и оформите переход.</p>
+      </div>
+      <div class="card step-card reveal stagger-2">
+        <div class="step-num" aria-hidden="true">2</div>
+        <p class="step-title">Дождитесь подтверждения</p>
+        <p class="step-text">HR-служба подтверждает переход и включает вас в список перешедших сотрудников.</p>
+      </div>
+      <div class="card step-card reveal stagger-3">
+        <div class="step-num" aria-hidden="true">3</div>
+        <p class="step-title">Следите за прогрессом</p>
+        <p class="step-text">Каждый переход приближает компанию к цели: открываются новые уровни призов, а вы автоматически участвуете в общем розыгрыше.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Правила и FAQ -->
+  <section class="section container" id="rules" aria-labelledby="faq-title">
+    <h2 class="section-title" id="faq-title">Правила и вопросы</h2>
+    <div class="card faq-card reveal">
+      <p class="rules-text" id="rules-text"></p>
+      <div id="faq-list"></div>
+    </div>
+  </section>
+
+  <!-- 9. Финальный CTA -->
+  <section class="section container" id="section-final-cta">
+    <div class="card final-cta reveal">
+      <p id="final-cta-text">Присоединяйтесь к переходу на электронную трудовую книжку.</p>
+      <a class="btn-cta" id="cta-final" href="#section-steps">
+        <span id="cta-final-text">Перейти на электронную трудовую книжку</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<div class="sticky-cta" id="sticky-cta">
+  <a class="btn-cta" id="cta-sticky" href="#section-steps">Перейти на ЭТК</a>
+</div>
+
+<script src="etk-shared.js"></script>
+<script>
+(function(){
+  var data = ETK.load();
+  var metrics = ETK.computeMetrics(data);
+  var lastKnownLevelIndex = null;
+  var firstRender = true;
+  var lastTotalValue = null;
+  var lastCampaignGrowth = null;
+  var lastUpdateGrowthValue = null;
+
+  function fillTemplate(str, vars){
+    return str.replace(/\{(\w+)\}/g, function(_, key){ return vars[key] !== undefined ? vars[key] : ''; });
+  }
+
+  function prefersReducedMotion(){
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  // Плавный подсчёт чисел вместо мгновенной подмены текста
+  function animateNumber(el, fromValue, toValue, duration, formatFn){
+    if (prefersReducedMotion() || fromValue === toValue) {
+      el.textContent = formatFn(toValue);
+      return;
+    }
+    var start = null;
+    function step(ts){
+      if (!start) start = ts;
+      var progress = Math.min(1, (ts - start) / duration);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = Math.round(fromValue + (toValue - fromValue) * eased);
+      el.textContent = formatFn(current);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = formatFn(toValue);
+        el.classList.add('pop');
+        setTimeout(function(){ el.classList.remove('pop'); }, 400);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  var revealObserver = ('IntersectionObserver' in window)
+    ? new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' })
+    : null;
+
+  function revealAll(nodeList){
+    if (revealObserver) {
+      nodeList.forEach(function(el){ revealObserver.observe(el); });
+    } else {
+      nodeList.forEach(function(el){ el.classList.add('is-visible'); });
+    }
+  }
+
+  function render(){
+    data = ETK.load();
+    metrics = ETK.computeMetrics(data);
+    var c = data.campaign, cur = data.current, content = data.content;
+
+    // Header
+    document.getElementById('header-brand-mark').textContent = content.header.brandMark;
+    document.getElementById('header-brand-text').textContent = content.header.brandText;
+    document.getElementById('header-nav-link').textContent = content.header.navLabel;
+
+    // Section titles
+    document.getElementById('counter-title').textContent = content.sectionTitles.counter;
+    document.getElementById('progress-title').textContent = content.sectionTitles.progress;
+    document.getElementById('prizes-title').textContent = content.sectionTitles.prizes;
+    document.getElementById('steps-title').textContent = content.sectionTitles.steps;
+    document.getElementById('faq-title').textContent = content.sectionTitles.faq;
+
+    // Section visibility
+    function setSectionVisible(id, visible){
+      var el = document.getElementById(id);
+      if (el) el.style.display = (visible === false) ? 'none' : '';
+    }
+    var sections = content.sections || {};
+    setSectionVisible('section-counter', sections.counter);
+    setSectionVisible('section-progress', sections.progress);
+    setSectionVisible('section-prizes', sections.prizes);
+    setSectionVisible('section-steps', sections.steps);
+    setSectionVisible('rules', sections.faq);
+    setSectionVisible('section-final-cta', sections.finalCta);
+
+    // Hero
+    document.getElementById('hero-title').textContent = content.title;
+    document.getElementById('hero-title').classList.remove('skeleton');
+    document.getElementById('hero-subtitle').textContent = fillTemplate(content.subtitle, {
+      total: ETK.formatNumber(cur.total),
+      targetPercent: c.targetPercent
+    });
+    document.getElementById('hero-note').textContent = content.heroNote;
+    document.getElementById('step-link').href = content.ctaLink;
+
+    var ctaMainText = c.status === 'completed' ? 'Конкурс завершён — читать итоги' : content.ctaText;
+    var ctaFinalText = c.status === 'completed' ? 'Конкурс завершён — читать итоги' : content.finalCtaText;
+    document.getElementById('cta-main-text').textContent = ctaMainText;
+    document.getElementById('cta-final-text').textContent = ctaFinalText;
+
+    // Counter
+    var totalEl = document.getElementById('counter-total');
+    totalEl.classList.remove('skeleton');
+    animateNumber(totalEl, lastTotalValue === null ? cur.total : lastTotalValue, cur.total, 900, ETK.formatNumber);
+    lastTotalValue = cur.total;
+    document.getElementById('counter-population').textContent = ETK.formatNumber(c.population);
+    document.getElementById('counter-percent').textContent = ETK.formatPercent(metrics.currentPercent);
+
+    var remainingEl = document.getElementById('counter-remaining');
+    if (metrics.goalReached) {
+      remainingEl.innerHTML = 'Цель <b>' + c.targetPercent + ' % достигнута</b> — спасибо всем, кто перешёл!';
+    } else {
+      remainingEl.innerHTML = 'Осталось <b>' + ETK.formatNumber(metrics.remaining) + '</b> переходов до цели ' + c.targetPercent + ' %';
+    }
+
+    // Progress
+    var startPercent = (c.baseline / c.population) * 100;
+    var trackScale = c.targetPercent; // track represents 0..target%
+    var fillPercentOfTrack = Math.min(100, (metrics.currentPercent / trackScale) * 100);
+    var startPercentOfTrack = Math.min(100, (startPercent / trackScale) * 100);
+
+    document.getElementById('progress-fill').style.width = fillPercentOfTrack + '%';
+    var marker = document.getElementById('progress-start-marker');
+    marker.style.left = startPercentOfTrack + '%';
+    marker.setAttribute('data-label', 'старт ' + ETK.formatPercent(startPercent));
+    var progressTrack = document.getElementById('progress-track');
+    progressTrack.setAttribute('aria-valuenow', metrics.currentPercent.toFixed(1));
+    progressTrack.setAttribute('aria-valuemax', c.targetPercent);
+    progressTrack.setAttribute('aria-label', 'Прогресс перехода на электронную трудовую книжку, цель ' + c.targetPercent + ' процентов');
+    document.getElementById('progress-target-label').textContent = 'Цель: ' + c.targetPercent + ' % (' + ETK.formatNumber(metrics.targetTotal) + ')';
+    document.getElementById('progress-caption').textContent = 'Шкала показывает путь от 0 до цели ' + c.targetPercent + ' %. Стартовое значение конкурса отмечено отдельно, чтобы не создавать ложное ощущение, будто весь прогресс набран за время конкурса.';
+
+    var currentLabelEl = document.getElementById('progress-current-label');
+    if (metrics.goalReached) {
+      currentLabelEl.textContent = 'Цель ' + c.targetPercent + ' % достигнута';
+    } else if (metrics.currentLevel) {
+      currentLabelEl.textContent = 'Текущий приз: ' + metrics.currentLevel.name;
+    } else {
+      currentLabelEl.textContent = 'Текущий приз: старт конкурса';
+    }
+
+    // Growth
+    var formatSigned = function(v){ return (v >= 0 ? '+' : '') + ETK.formatNumber(v); };
+    var growthCampaignEl = document.getElementById('growth-campaign');
+    animateNumber(growthCampaignEl, lastCampaignGrowth === null ? metrics.campaignGrowth : lastCampaignGrowth, metrics.campaignGrowth, 900, formatSigned);
+    lastCampaignGrowth = metrics.campaignGrowth;
+
+    var growthLastEl = document.getElementById('growth-last');
+    if (data.history.length > 1) {
+      animateNumber(growthLastEl, lastUpdateGrowthValue === null ? metrics.lastUpdateGrowth : lastUpdateGrowthValue, metrics.lastUpdateGrowth, 900, formatSigned);
+      lastUpdateGrowthValue = metrics.lastUpdateGrowth;
+    } else {
+      growthLastEl.textContent = '—';
+    }
+    document.getElementById('growth-date').textContent = ETK.formatDateTime(cur.lastUpdateAt);
+
+    // Prizes
+    var grid = document.getElementById('prize-grid');
+    grid.innerHTML = '';
+    var justUnlockedFrom = (lastKnownLevelIndex !== null && metrics.currentLevelIndex > lastKnownLevelIndex) ? lastKnownLevelIndex : null;
+    metrics.levels.forEach(function(level, idx){
+      var status = 'locked';
+      if (idx <= metrics.currentLevelIndex) status = 'achieved';
+      else if (idx === metrics.currentLevelIndex + 1) status = 'active';
+
+      var wrap = document.createElement('div');
+      wrap.className = 'card prize-card reveal ' + status;
+      if (idx < 5) wrap.className += ' stagger-' + (idx + 1);
+      if (justUnlockedFrom !== null && idx > justUnlockedFrom && idx <= metrics.currentLevelIndex) {
+        wrap.className += ' just-unlocked';
+      }
+      var badgeText = status === 'achieved' ? 'Открыт' : (status === 'active' ? 'Ближайший' : 'Закрыт');
+      wrap.innerHTML =
+        (level.image ? '<img class="prize-image" src="' + level.image + '" alt="" loading="lazy">' : '') +
+        '<span class="prize-badge ' + status + '">' + badgeText + '</span>' +
+        '<div class="prize-threshold">от ' + ETK.formatNumber(level.threshold) + ' переходов</div>' +
+        '<p class="prize-name">' + level.name + '</p>' +
+        '<p class="prize-desc">' + level.description + '</p>' +
+        '<p class="prize-winners">' + level.winnersCount + ' победител' + (level.winnersCount % 10 === 1 && level.winnersCount % 100 !== 11 ? 'ь' : (level.winnersCount % 10 >= 2 && level.winnersCount % 10 <= 4 && (level.winnersCount % 100 < 10 || level.winnersCount % 100 >= 20) ? 'я' : 'ей')) + '</p>';
+      grid.appendChild(wrap);
+    });
+    lastKnownLevelIndex = metrics.currentLevelIndex;
+
+    if (firstRender) {
+      revealAll(grid.querySelectorAll('.reveal'));
+    } else {
+      // Карточки пересоздаются при каждом опросе — после первого показа не переигрываем анимацию
+      grid.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('is-visible'); });
+    }
+
+    // FAQ
+    document.getElementById('rules-text').textContent = content.rulesText;
+    var faqList = document.getElementById('faq-list');
+    faqList.innerHTML = '';
+    content.faq.forEach(function(item, idx){
+      var details = document.createElement('details');
+      details.className = 'faq-item';
+      if (idx === 0) details.open = true;
+      details.innerHTML =
+        '<summary>' + item.question + '<span class="faq-icon" aria-hidden="true">+</span></summary>' +
+        '<p class="faq-answer">' + item.answer + '</p>';
+      faqList.appendChild(details);
+    });
+
+    // Final CTA text
+    var finalTextEl = document.getElementById('final-cta-text');
+    if (c.status === 'completed') {
+      finalTextEl.textContent = 'Конкурс завершён. Спасибо всем, кто перешёл на электронную трудовую книжку — итоги будут опубликованы отдельно.';
+    } else if (metrics.goalReached) {
+      finalTextEl.textContent = 'Цель ' + c.targetPercent + ' % достигнута! Переход на ЭТК всё ещё открыт — присоединяйтесь.';
+    } else {
+      finalTextEl.textContent = 'Каждый переход приближает компанию к цели ' + c.targetPercent + ' % и открывает новые призы.';
+    }
+
+    firstRender = false;
+  }
+
+  // Статичные карточки (не пересоздаются), наблюдаем один раз
+  revealAll(document.querySelectorAll('.reveal:not(#prize-grid .reveal)'));
+
+  // Sticky mobile CTA appears after hero is scrolled past
+  var hero = document.querySelector('.hero');
+  var sticky = document.getElementById('sticky-cta');
+  if ('IntersectionObserver' in window && hero) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        sticky.classList.toggle('visible', !entry.isIntersecting);
+      });
+    }, { threshold: 0 });
+    io.observe(hero);
+  }
+
+  render();
+
+  // Публичная статистика кэшируется 30–60 сек (п.10.1 ТЗ) — здесь эмулируем периодический опрос
+  setInterval(render, 30000);
+
+  // Синхронизация между вкладками (демо межвкладочной "реалтайм" доставки)
+  window.addEventListener('storage', function(e){
+    if (e.key === ETK.STORAGE_KEY) render();
+  });
+})();
+</script>
+</body>
+</html>
