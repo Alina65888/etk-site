@@ -76,6 +76,7 @@
           navLabel: 'Правила и FAQ'
         },
         sectionTitles: {
+          advantages: 'Преимущества перехода на ЭТК',
           counter: 'Текущий результат',
           progress: 'Прогресс до цели',
           prizes: 'Призовая лестница',
@@ -83,6 +84,7 @@
           faq: 'Правила и вопросы'
         },
         sections: {
+          advantages: true,
           counter: true,
           progress: true,
           prizes: true,
@@ -108,8 +110,10 @@
     var c = data.content = data.content || {};
     if (c.heroNote === undefined) c.heroNote = defaults.content.heroNote;
     if (!c.header) c.header = defaults.content.header;
-    if (!c.sectionTitles) c.sectionTitles = defaults.content.sectionTitles;
-    if (!c.sections) c.sections = defaults.content.sections;
+    // Object.assign с дефолтами первым аргументом гарантирует, что новые ключи (добавленные
+    // в более поздней версии сайта, например новый раздел) подхватятся и для уже сохранённых данных.
+    c.sectionTitles = Object.assign({}, defaults.content.sectionTitles, c.sectionTitles || {});
+    c.sections = Object.assign({}, defaults.content.sections, c.sections || {});
     return data;
   }
 

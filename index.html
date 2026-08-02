@@ -235,6 +235,41 @@
     margin:8px auto 0;
   }
 
+  /* ---------- Advantages ---------- */
+  .advantages-card{ padding:24px; }
+  .advantages-card p{
+    font-size:0.92rem;
+    line-height:1.6;
+    color:var(--sibur-gray-70);
+    margin:0 0 4px;
+  }
+  .benefits-list{
+    margin:16px 0 0;
+    padding:0;
+    list-style:none;
+  }
+  .benefits-list li{
+    position:relative;
+    padding:10px 0 10px 30px;
+    font-size:0.92rem;
+    line-height:1.55;
+    color:var(--sibur-gray-70);
+    border-bottom:1px solid #EEEEEE;
+  }
+  .benefits-list li:last-child{ border-bottom:none; }
+  .benefits-list li::before{
+    content:'✓';
+    position:absolute;
+    left:0; top:10px;
+    width:20px;height:20px;
+    border-radius:50%;
+    background:var(--sibur-mint);
+    color:var(--sibur-dark);
+    font-size:0.65rem;
+    font-weight:900;
+    display:flex;align-items:center;justify-content:center;
+  }
+
   /* ---------- Counter ---------- */
   .counter-card{
     padding:28px 24px;
@@ -657,6 +692,21 @@
     </div>
   </section>
 
+  <!-- 2.5. Преимущества перехода на ЭТК -->
+  <section class="section container" id="section-advantages" aria-labelledby="advantages-title">
+    <h2 class="section-title" id="advantages-title">Преимущества перехода на ЭТК</h2>
+
+    <div class="card advantages-card reveal">
+      <p>Все сведения о трудовой деятельности хранятся в защищённой системе Пенсионного фонда — их нельзя подделать, удалить или потерять.</p>
+      <ul class="benefits-list">
+        <li>Не потеряется и не испортится — опечатки исправляются быстро</li>
+        <li>Пенсию можно оформить дистанционно, без сбора документов</li>
+        <li>Доступ к данным в любой момент — при смене работы книжку получать не нужно</li>
+        <li>Подходит для оформления налоговых и социальных льгот</li>
+      </ul>
+    </div>
+  </section>
+
   <!-- 3. Главный счётчик -->
   <section class="section container" id="section-counter" aria-labelledby="counter-title">
     <h2 class="section-title" id="counter-title">Текущий результат</h2>
@@ -715,8 +765,8 @@
     <div class="steps-grid">
       <div class="card step-card reveal stagger-1">
         <div class="step-num" aria-hidden="true">1</div>
-        <p class="step-title">Перейдите к инструкции</p>
-        <p class="step-text">Откройте <a id="step-link" href="#" target="_blank" rel="noopener">инструкцию по переходу</a> на электронную трудовую книжку и оформите переход.</p>
+        <p class="step-title">Оформите заявление</p>
+        <p class="step-text">Обратитесь в службу управления персоналом вашего предприятия и оформите типовое заявление о переходе на электронную трудовую книжку. Сотрудники службы внесут запись в бумажную трудовую книжку, уведомят Пенсионный фонд о вашем выборе и выдадут бумажную книжку вам на руки. Подробная <a id="step-link" href="#" target="_blank" rel="noopener">инструкция по переходу</a> — по ссылке.</p>
       </div>
       <div class="card step-card reveal stagger-2">
         <div class="step-num" aria-hidden="true">2</div>
@@ -829,6 +879,7 @@
     document.getElementById('header-nav-link').textContent = content.header.navLabel;
 
     // Section titles
+    document.getElementById('advantages-title').textContent = content.sectionTitles.advantages;
     document.getElementById('counter-title').textContent = content.sectionTitles.counter;
     document.getElementById('progress-title').textContent = content.sectionTitles.progress;
     document.getElementById('prizes-title').textContent = content.sectionTitles.prizes;
@@ -841,6 +892,7 @@
       if (el) el.style.display = (visible === false) ? 'none' : '';
     }
     var sections = content.sections || {};
+    setSectionVisible('section-advantages', sections.advantages);
     setSectionVisible('section-counter', sections.counter);
     setSectionVisible('section-progress', sections.progress);
     setSectionVisible('section-prizes', sections.prizes);

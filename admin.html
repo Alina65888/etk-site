@@ -414,6 +414,8 @@
       <div class="panel-box">
         <h3>Заголовки разделов</h3>
         <p class="panel-desc" style="margin-bottom:12px;">Названия секций публичной страницы (H2), без изменения их содержимого.</p>
+        <label for="t-advantages">Раздел «Преимущества перехода на ЭТК»</label>
+        <input type="text" id="t-advantages">
         <label for="t-counter">Раздел «Текущий результат»</label>
         <input type="text" id="t-counter">
         <label for="t-progress">Раздел «Прогресс до цели»</label>
@@ -430,6 +432,7 @@
       <div class="panel-box">
         <h3>Видимость разделов сайта</h3>
         <p class="panel-desc" style="margin-bottom:12px;">Скрытые разделы не отображаются на публичной странице, но их содержимое сохраняется и не теряется.</p>
+        <div class="toggle-row"><input type="checkbox" id="v-advantages"><label for="v-advantages" style="margin:0;">Преимущества перехода на ЭТК</label></div>
         <div class="toggle-row"><input type="checkbox" id="v-counter"><label for="v-counter" style="margin:0;">Текущий результат (счётчик)</label></div>
         <div class="toggle-row"><input type="checkbox" id="v-progress"><label for="v-progress" style="margin:0;">Прогресс до цели и прирост</label></div>
         <div class="toggle-row"><input type="checkbox" id="v-prizes"><label for="v-prizes" style="margin:0;">Призовая лестница</label></div>
@@ -898,23 +901,25 @@
     });
     document.getElementById('header-save-btn').disabled = !editable;
 
+    document.getElementById('t-advantages').value = c.sectionTitles.advantages;
     document.getElementById('t-counter').value = c.sectionTitles.counter;
     document.getElementById('t-progress').value = c.sectionTitles.progress;
     document.getElementById('t-prizes').value = c.sectionTitles.prizes;
     document.getElementById('t-steps').value = c.sectionTitles.steps;
     document.getElementById('t-faq').value = c.sectionTitles.faq;
-    ['t-counter','t-progress','t-prizes','t-steps','t-faq'].forEach(function(id){
+    ['t-advantages','t-counter','t-progress','t-prizes','t-steps','t-faq'].forEach(function(id){
       document.getElementById(id).disabled = !editable;
     });
     document.getElementById('titles-save-btn').disabled = !editable;
 
+    document.getElementById('v-advantages').checked = c.sections.advantages !== false;
     document.getElementById('v-counter').checked = c.sections.counter !== false;
     document.getElementById('v-progress').checked = c.sections.progress !== false;
     document.getElementById('v-prizes').checked = c.sections.prizes !== false;
     document.getElementById('v-steps').checked = c.sections.steps !== false;
     document.getElementById('v-faq').checked = c.sections.faq !== false;
     document.getElementById('v-final-cta').checked = c.sections.finalCta !== false;
-    ['v-counter','v-progress','v-prizes','v-steps','v-faq','v-final-cta'].forEach(function(id){
+    ['v-advantages','v-counter','v-progress','v-prizes','v-steps','v-faq','v-final-cta'].forEach(function(id){
       document.getElementById(id).disabled = !editable;
     });
     document.getElementById('visibility-save-btn').disabled = !editable;
@@ -979,6 +984,7 @@
   document.getElementById('titles-save-btn').addEventListener('click', function(){
     if (!can('editContent')) return;
     var t = data.content.sectionTitles;
+    t.advantages = document.getElementById('t-advantages').value;
     t.counter = document.getElementById('t-counter').value;
     t.progress = document.getElementById('t-progress').value;
     t.prizes = document.getElementById('t-prizes').value;
@@ -991,6 +997,7 @@
   document.getElementById('visibility-save-btn').addEventListener('click', function(){
     if (!can('editContent')) return;
     var s = data.content.sections;
+    s.advantages = document.getElementById('v-advantages').checked;
     s.counter = document.getElementById('v-counter').checked;
     s.progress = document.getElementById('v-progress').checked;
     s.prizes = document.getElementById('v-prizes').checked;
